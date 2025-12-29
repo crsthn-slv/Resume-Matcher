@@ -80,9 +80,8 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ data, onChange }
   };
 
   return (
-    <div className="space-y-6 border border-black p-6 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
-      <div className="flex justify-between items-center border-b border-black pb-2 mb-4">
-        <h3 className="font-serif text-xl font-bold">Work Experience</h3>
+    <div className="space-y-6">
+      <div className="flex justify-end">
         <Button
           variant="outline"
           size="sm"
