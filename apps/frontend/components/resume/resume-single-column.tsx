@@ -2,6 +2,7 @@ import React from 'react';
 import { Mail, Phone, MapPin, Globe, Linkedin, Github, ExternalLink } from 'lucide-react';
 import type { ResumeData, SectionMeta } from '@/components/dashboard/resume-component';
 import { getSortedSections } from '@/lib/utils/section-helpers';
+import { formatDateRange } from '@/lib/utils';
 import { DynamicResumeSection } from './dynamic-resume-section';
 import { SafeHtml } from './safe-html';
 import baseStyles from './styles/_base.module.css';
@@ -110,7 +111,9 @@ export const ResumeSingleColumn: React.FC<ResumeSingleColumnProps> = ({
                     className={`flex justify-between items-baseline ${baseStyles['resume-row-tight']}`}
                   >
                     <h4 className={baseStyles['resume-item-title']}>{exp.title}</h4>
-                    <span className={`${baseStyles['resume-date']} ml-4`}>{exp.years}</span>
+                    <span className={`${baseStyles['resume-date']} ml-4`}>
+                      {formatDateRange(exp.years)}
+                    </span>
                   </div>
                   <div
                     className={`flex justify-between items-center ${baseStyles['resume-row']} ${baseStyles['resume-meta']}`}
@@ -120,11 +123,14 @@ export const ResumeSingleColumn: React.FC<ResumeSingleColumnProps> = ({
                   </div>
                   {exp.description && exp.description.length > 0 && (
                     <ul
-                      className={`list-disc list-outside ml-4 ${baseStyles['resume-list']} ${baseStyles['resume-text-sm']}`}
+                      className={`ml-4 ${baseStyles['resume-list']} ${baseStyles['resume-text-sm']}`}
                     >
                       {exp.description.map((desc, index) => (
-                        <li key={index} className="pl-1">
-                          <SafeHtml html={desc} />
+                        <li key={index} className="flex">
+                          <span className="mr-1.5 flex-shrink-0">•&nbsp;</span>
+                          <span>
+                            <SafeHtml html={desc} />
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -146,18 +152,10 @@ export const ResumeSingleColumn: React.FC<ResumeSingleColumnProps> = ({
                   <div
                     className={`flex justify-between items-baseline ${baseStyles['resume-row-tight']}`}
                   >
-                    <h4 className={baseStyles['resume-item-title']}>{project.name}</h4>
-                    {project.years && (
-                      <span className={`${baseStyles['resume-date']} ml-4`}>{project.years}</span>
-                    )}
-                  </div>
-                  {(project.role || project.github || project.website) && (
-                    <div
-                      className={`flex justify-between items-center ${baseStyles['resume-row']} ${baseStyles['resume-meta']}`}
-                    >
-                      {project.role && <span>{project.role}</span>}
+                    <div className="flex items-baseline gap-2">
+                      <h4 className={baseStyles['resume-item-title']}>{project.name}</h4>
                       {(project.github || project.website) && (
-                        <span className="flex gap-2">
+                        <span className="flex gap-1.5">
                           {project.github && (
                             <a
                               href={
@@ -170,7 +168,10 @@ export const ResumeSingleColumn: React.FC<ResumeSingleColumnProps> = ({
                               className={baseStyles['resume-link-pill']}
                             >
                               <Github size={10} />
-                              GitHub
+                              {project.github
+                                .replace(/^https?:\/\//, '')
+                                .replace(/^www\./, '')
+                                .replace(/\/$/, '')}
                             </a>
                           )}
                           {project.website && (
@@ -185,20 +186,36 @@ export const ResumeSingleColumn: React.FC<ResumeSingleColumnProps> = ({
                               className={baseStyles['resume-link-pill']}
                             >
                               <ExternalLink size={10} />
-                              Website
+                              {project.website
+                                .replace(/^https?:\/\//, '')
+                                .replace(/^www\./, '')
+                                .replace(/\/$/, '')}
                             </a>
                           )}
                         </span>
                       )}
                     </div>
+                    {project.years && (
+                      <span className={`${baseStyles['resume-date']} ml-4`}>
+                        {formatDateRange(project.years)}
+                      </span>
+                    )}
+                  </div>
+                  {project.role && (
+                    <div className={`${baseStyles['resume-row']} ${baseStyles['resume-meta']}`}>
+                      <span>{project.role}</span>
+                    </div>
                   )}
                   {project.description && project.description.length > 0 && (
                     <ul
-                      className={`list-disc list-outside ml-4 ${baseStyles['resume-list']} ${baseStyles['resume-text-sm']}`}
+                      className={`ml-4 ${baseStyles['resume-list']} ${baseStyles['resume-text-sm']}`}
                     >
                       {project.description.map((desc, index) => (
-                        <li key={index} className="pl-1">
-                          <SafeHtml html={desc} />
+                        <li key={index} className="flex">
+                          <span className="mr-1.5 flex-shrink-0">•&nbsp;</span>
+                          <span>
+                            <SafeHtml html={desc} />
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -221,7 +238,9 @@ export const ResumeSingleColumn: React.FC<ResumeSingleColumnProps> = ({
                     className={`flex justify-between items-baseline ${baseStyles['resume-row-tight']}`}
                   >
                     <h4 className={baseStyles['resume-item-title']}>{edu.institution}</h4>
-                    <span className={`${baseStyles['resume-date']} ml-4`}>{edu.years}</span>
+                    <span className={`${baseStyles['resume-date']} ml-4`}>
+                      {formatDateRange(edu.years)}
+                    </span>
                   </div>
                   <div
                     className={`flex justify-between ${baseStyles['resume-meta']} ${baseStyles['resume-row-tight']}`}
@@ -282,36 +301,36 @@ export const ResumeSingleColumn: React.FC<ResumeSingleColumnProps> = ({
 
           {/* Contact - Own line, centered */}
           <div
-            className={`flex flex-wrap justify-center gap-x-4 gap-y-1 ${baseStyles['resume-meta']}`}
+            className={`flex flex-wrap justify-center gap-x-1 gap-y-1 ${baseStyles['resume-meta']}`}
           >
             {renderContactDetail('Email', personalInfo.email, 'mailto:')}
             {personalInfo.phone && (
               <>
-                <span className={baseStyles['text-muted']}>|</span>
+                <span className={baseStyles['text-muted']}>,</span>
                 {renderContactDetail('Phone', personalInfo.phone, 'tel:')}
               </>
             )}
             {personalInfo.location && (
               <>
-                <span className={baseStyles['text-muted']}>|</span>
+                <span className={baseStyles['text-muted']}>,</span>
                 {renderContactDetail('Location', personalInfo.location)}
               </>
             )}
             {personalInfo.website && (
               <>
-                <span className={baseStyles['text-muted']}>|</span>
+                <span className={baseStyles['text-muted']}>,</span>
                 {renderContactDetail('Website', personalInfo.website)}
               </>
             )}
             {personalInfo.linkedin && (
               <>
-                <span className={baseStyles['text-muted']}>|</span>
+                <span className={baseStyles['text-muted']}>,</span>
                 {renderContactDetail('LinkedIn', personalInfo.linkedin)}
               </>
             )}
             {personalInfo.github && (
               <>
-                <span className={baseStyles['text-muted']}>|</span>
+                <span className={baseStyles['text-muted']}>,</span>
                 {renderContactDetail('GitHub', personalInfo.github)}
               </>
             )}
