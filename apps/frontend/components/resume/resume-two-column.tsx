@@ -200,7 +200,7 @@ export const ResumeTwoColumn: React.FC<ResumeTwoColumnProps> = ({
                     </div>
 
                     <div
-                      className={`flex justify-between items-center ${baseStyles['resume-row-tight']} ${baseStyles['resume-meta-sm']}`}
+                      className={`flex justify-between items-center ${baseStyles['resume-row-tight']} ${baseStyles['resume-item-subtitle-sm']}`}
                     >
                       <span>
                         {exp.company}
@@ -293,7 +293,7 @@ export const ResumeTwoColumn: React.FC<ResumeTwoColumnProps> = ({
                       </div>
                       {project.role && (
                         <div
-                          className={`${baseStyles['resume-row-tight']} ${baseStyles['resume-meta-sm']}`}
+                          className={`${baseStyles['resume-row-tight']} ${baseStyles['resume-item-subtitle-sm']}`}
                         >
                           <span>{project.role}</span>
                         </div>
@@ -365,7 +365,7 @@ export const ResumeTwoColumn: React.FC<ResumeTwoColumnProps> = ({
                         </span>
                       )}
                     </h4>
-                    <p className={baseStyles['resume-meta-sm']}>{edu.degree}</p>
+                    <p className={baseStyles['resume-item-subtitle-sm']}>{edu.degree}</p>
                     {edu.description && (
                       <p className={`${baseStyles['resume-text-xs']} ${baseStyles['resume-meta']}`}>
                         {edu.description}
