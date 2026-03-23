@@ -1,9 +1,6 @@
 import { apiFetch, apiPatch, apiPost } from './client';
 
-export type ApplicationStatusHistorySource =
-  | 'manual_create'
-  | 'tailor_create'
-  | 'status_change';
+export type ApplicationStatusHistorySource = 'manual_create' | 'tailor_create' | 'status_change';
 
 export interface ApplicationStatusHistoryEntry {
   from_status: string | null;
@@ -184,7 +181,10 @@ export async function updateApplication(
   payload: UpdateApplicationRequest
 ): Promise<ApplicationRecord> {
   const normalizedApplicationId = normalizeApplicationId(applicationId);
-  const res = await apiPatch(`/applications/${encodeURIComponent(normalizedApplicationId)}`, payload);
+  const res = await apiPatch(
+    `/applications/${encodeURIComponent(normalizedApplicationId)}`,
+    payload
+  );
 
   if (!res.ok) {
     return resolveApplicationError(res, `Failed to update application (status ${res.status}).`);
