@@ -30,14 +30,14 @@
 
 ### Tailoring Integration
 
-- [ ] **TAIL-01**: User can open the application creation flow immediately after tailoring using the generated `resume_id` and `job_id`.
-- [ ] **TAIL-02**: User sees the post-tailoring application flow prefilled with linked identifiers and default status while manually entering company and role.
+- [x] **TAIL-01**: User can open the application creation flow immediately after tailoring using the generated `resume_id` and `job_id`.
+- [x] **TAIL-02**: User sees the post-tailoring application flow prefilled with linked identifiers and default status while manually entering company and role.
 
 ### Settings
 
-- [ ] **SET-01**: User can view the effective application pipeline configuration from Settings.
-- [ ] **SET-02**: User can add, remove, and reorder application statuses from a dedicated Settings component.
-- [ ] **SET-03**: User is prevented from removing a status that is still in use and can see which applications are affected.
+- [x] **SET-01**: User can view the effective application pipeline configuration from Settings.
+- [x] **SET-02**: User can add, remove, and reorder application statuses from a dedicated Settings component.
+- [x] **SET-03**: User is prevented from removing a status that is still in use and can see which applications are affected.
 
 ### Quality
 
@@ -79,11 +79,11 @@
 | DASH-01 | Phase 2 | Complete |
 | DASH-02 | Phase 2 | Complete |
 | DASH-03 | Phase 2 | Complete |
-| SET-01 | Phase 3 | Pending |
-| SET-02 | Phase 3 | Pending |
-| SET-03 | Phase 3 | Pending |
-| TAIL-01 | Phase 3 | Pending |
-| TAIL-02 | Phase 3 | Pending |
+| SET-01 | Phase 3 | Complete |
+| SET-02 | Phase 3 | Complete |
+| SET-03 | Phase 3 | Complete |
+| TAIL-01 | Phase 3 | Complete |
+| TAIL-02 | Phase 3 | Complete |
 | QUAL-01 | Phase 4 | Pending |
 | QUAL-02 | Phase 4 | Pending |
 
