@@ -30,6 +30,30 @@ export {
   type ResumeListItem,
 } from './resume';
 
+// Application operations
+export {
+  fetchApplications,
+  fetchApplication,
+  fetchApplicationConfig,
+  createApplication,
+  updateApplication,
+  updateApplicationStatus,
+  indexApplicationsByResumeId,
+  resolveApplicationByResumeId,
+  type ApplicationStatusHistorySource,
+  type ApplicationStatusHistoryEntry,
+  type ApplicationRecord,
+  type ApplicationListItem,
+  type ApplicationListResponse,
+  type ApplicationConfig,
+  type ApplicationConfigResponse,
+  type ApplicationConfigUpdate,
+  type CreateApplicationRequest,
+  type UpdateApplicationRequest,
+  type UpdateApplicationStatusRequest,
+  type ApplicationListFilters,
+} from './applications';
+
 // Config operations
 export {
   fetchLlmConfig,
