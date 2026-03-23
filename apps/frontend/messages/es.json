@@ -536,6 +536,16 @@
     "configureApiKey": "Configurar clave API",
     "configureApiKeyFirst": "Configura primero la clave API",
     "charactersCount": "{count} caracteres",
+    "applicationPrefill": {
+      "title": "Prellenado de candidatura",
+      "description": "Estos campos pasarán al formulario de candidatura vinculada después de personalizar el CV para que no tengas que escribirlos otra vez.",
+      "companyLabel": "Empresa",
+      "companyPlaceholder": "ej.: Acme",
+      "roleLabel": "Puesto",
+      "rolePlaceholder": "ej.: Senior Frontend Engineer",
+      "jobUrlLabel": "URL de la vacante",
+      "jobUrlPlaceholder": "https://empresa.com/jobs/123"
+    },
     "footerTagline": "MOTOR DE OPTIMIZACIÓN CON IA",
     "diffModal": {
       "title": "Revisar resultados de ajuste de IA",
@@ -689,6 +699,24 @@
       "title": "Configuración de Prompts",
       "description": "Elige el prompt predeterminado para personalizar el currículum.",
       "defaultLabel": "Prompt de personalización predeterminado"
+    },
+    "applicationPipeline": {
+      "title": "Pipeline de candidaturas",
+      "description": "Gestiona los estados disponibles en el rastreador de candidaturas.",
+      "hint": "Agrega, elimina y reordena estados antes de guardar.",
+      "newStatusLabel": "Nuevo estado",
+      "newStatusPlaceholder": "ej.: Interview",
+      "addAction": "Agregar estado",
+      "saveAction": "Guardar pipeline",
+      "moveUpAction": "Subir",
+      "moveDownAction": "Bajar",
+      "removeAction": "Eliminar",
+      "positionLabel": "Posición {position}",
+      "emptyState": "Agrega al menos un estado para crear el pipeline.",
+      "emptyError": "Se requiere al menos un estado de candidatura.",
+      "duplicateStatusError": "Este estado ya existe en el pipeline.",
+      "affectedApplicationsTitle": "Estas candidaturas todavía usan los estados eliminados",
+      "affectedApplicationMeta": "ESTADO: {status} / ID: {id}"
     },
     "footer": {
       "status": {

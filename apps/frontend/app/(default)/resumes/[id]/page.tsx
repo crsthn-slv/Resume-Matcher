@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
@@ -66,6 +66,14 @@ interface ApplicationFormState {
   notes: string;
 }
 
+interface PostTailorApplicationPrefill {
+  shouldCreate: boolean;
+  company: string | null;
+  role: string | null;
+  jobUrl: string | null;
+  jobId: string | null;
+}
+
 const EMPTY_APPLICATION_FORM: ApplicationFormState = {
   company: '',
   role: '',
@@ -83,6 +91,19 @@ function toApplicationFormState(application: ApplicationListItem | null): Applic
     role: application.role,
     jobUrl: application.job_url ?? '',
     notes: application.notes ?? '',
+  };
+}
+
+function buildApplicationPrefillState(prefill: {
+  company?: string | null;
+  role?: string | null;
+  jobUrl?: string | null;
+}): ApplicationFormState {
+  return {
+    company: prefill.company?.trim() ?? '',
+    role: prefill.role?.trim() ?? '',
+    jobUrl: prefill.jobUrl?.trim() ?? '',
+    notes: '',
   };
 }
 
@@ -109,6 +130,7 @@ export default function ResumeViewerPage() {
   const { t } = useTranslations();
   const { uiLanguage } = useLanguage();
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { decrementResumes, setHasMasterResume } = useStatusCache();
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
@@ -140,8 +162,29 @@ export default function ResumeViewerPage() {
   const [statusSelection, setStatusSelection] = useState('');
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [applicationStatusError, setApplicationStatusError] = useState<string | null>(null);
+  const [postTailorApplicationPrefill, setPostTailorApplicationPrefill] =
+    useState<PostTailorApplicationPrefill | null>(null);
+  const postTailorCreateHandled = useRef(false);
 
   const resumeId = params?.id as string;
+  const postTailorPrefill = useMemo(
+    () => ({
+      shouldCreate: searchParams.get('createApplication') === '1',
+      company: searchParams.get('company'),
+      role: searchParams.get('role'),
+      jobUrl: searchParams.get('jobUrl'),
+      jobId: searchParams.get('jobId'),
+    }),
+    [searchParams]
+  );
+
+  useEffect(() => {
+    if (!postTailorPrefill.shouldCreate || postTailorApplicationPrefill) {
+      return;
+    }
+
+    setPostTailorApplicationPrefill(postTailorPrefill);
+  }, [postTailorApplicationPrefill, postTailorPrefill]);
 
   const localizedResumeData = useMemo(() => {
     if (!resumeData) return null;
@@ -315,7 +358,11 @@ export default function ResumeViewerPage() {
 
   const openCreateApplicationDialog = () => {
     setApplicationDialogMode('create');
-    setApplicationForm(EMPTY_APPLICATION_FORM);
+    setApplicationForm(
+      postTailorApplicationPrefill?.shouldCreate
+        ? buildApplicationPrefillState(postTailorApplicationPrefill)
+        : EMPTY_APPLICATION_FORM
+    );
     setApplicationFormError(null);
     setApplicationActionError(null);
     setApplicationDialogOpen(true);
@@ -338,6 +385,27 @@ export default function ResumeViewerPage() {
     setApplicationFormError(null);
     setApplicationActionError(null);
   };
+
+  useEffect(() => {
+    if (!resumeId || loading || linkedApplication || postTailorCreateHandled.current) {
+      return;
+    }
+
+    if (!postTailorApplicationPrefill?.shouldCreate) {
+      return;
+    }
+
+    postTailorCreateHandled.current = true;
+    setApplicationDialogMode('create');
+    setApplicationForm(buildApplicationPrefillState(postTailorApplicationPrefill));
+    setApplicationFormError(null);
+    setApplicationActionError(null);
+    setApplicationDialogOpen(true);
+    if (postTailorApplicationPrefill.jobId && !linkedJobId) {
+      setLinkedJobId(postTailorApplicationPrefill.jobId);
+    }
+    router.replace(`/resumes/${resumeId}`);
+  }, [linkedApplication, linkedJobId, loading, postTailorApplicationPrefill, resumeId, router]);
 
   const handleApplicationSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

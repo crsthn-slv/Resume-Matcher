@@ -533,6 +533,16 @@
     "configureApiKey": "Configure API Key",
     "configureApiKeyFirst": "Configure API Key First",
     "charactersCount": "{count} chars",
+    "applicationPrefill": {
+      "title": "Application Prefill",
+      "description": "These fields will be carried into the linked application form after tailoring so you do not need to type them twice.",
+      "companyLabel": "Company",
+      "companyPlaceholder": "e.g. Acme",
+      "roleLabel": "Role",
+      "rolePlaceholder": "e.g. Senior Frontend Engineer",
+      "jobUrlLabel": "Job URL",
+      "jobUrlPlaceholder": "https://company.com/jobs/123"
+    },
     "matchScore": "Match Score",
     "suggestions": "Suggestions",
     "keywords": "Keywords to Include",
@@ -689,6 +699,24 @@
       "title": "Prompt Settings",
       "description": "Choose the default prompt used for resume tailoring.",
       "defaultLabel": "Default tailoring prompt"
+    },
+    "applicationPipeline": {
+      "title": "Application Pipeline",
+      "description": "Manage the statuses available to the application tracker.",
+      "hint": "Add, remove, and reorder statuses before saving.",
+      "newStatusLabel": "New status",
+      "newStatusPlaceholder": "e.g. Interview",
+      "addAction": "Add status",
+      "saveAction": "Save pipeline",
+      "moveUpAction": "Move up",
+      "moveDownAction": "Move down",
+      "removeAction": "Remove",
+      "positionLabel": "Position {position}",
+      "emptyState": "Add at least one status to create the pipeline.",
+      "emptyError": "At least one application status is required.",
+      "duplicateStatusError": "This status already exists in the pipeline.",
+      "affectedApplicationsTitle": "These applications still use removed statuses",
+      "affectedApplicationMeta": "STATUS: {status} / ID: {id}"
     },
     "footer": {
       "status": {

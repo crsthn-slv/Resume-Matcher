@@ -147,6 +147,31 @@ export interface FeatureConfigUpdate {
   enable_outreach_message?: boolean;
 }
 
+export interface ApplicationsConfig {
+  statuses: string[];
+}
+
+export interface ApplicationsConfigUpdate {
+  statuses: string[];
+}
+
+export interface AffectedApplication {
+  application_id: string;
+  company: string;
+  role: string;
+  status: string;
+}
+
+export class ApplicationsConfigError extends Error {
+  affectedApplications: AffectedApplication[];
+
+  constructor(message: string, affectedApplications: AffectedApplication[] = []) {
+    super(message);
+    this.name = 'ApplicationsConfigError';
+    this.affectedApplications = affectedApplications;
+  }
+}
+
 // Fetch feature configuration
 export async function fetchFeatureConfig(): Promise<FeatureConfig> {
   const res = await apiFetch('/config/features', { credentials: 'include' });
@@ -170,6 +195,53 @@ export async function updateFeatureConfig(config: FeatureConfigUpdate): Promise<
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.detail || `Failed to update feature config (status ${res.status}).`);
+  }
+
+  return res.json();
+}
+
+export async function fetchApplicationsConfig(): Promise<ApplicationsConfig> {
+  const res = await apiFetch('/config/applications', { credentials: 'include' });
+
+  if (!res.ok) {
+    throw new Error(`Failed to load application config (status ${res.status}).`);
+  }
+
+  return res.json();
+}
+
+export async function updateApplicationsConfig(
+  config: ApplicationsConfigUpdate
+): Promise<ApplicationsConfig> {
+  const res = await apiFetch('/config/applications', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(config),
+  });
+
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as {
+      detail?:
+        | string
+        | {
+            message?: string;
+            affected_applications?: AffectedApplication[];
+          };
+    };
+
+    if (typeof data.detail === 'object' && data.detail !== null) {
+      throw new ApplicationsConfigError(
+        data.detail.message || `Failed to update application config (status ${res.status}).`,
+        data.detail.affected_applications || []
+      );
+    }
+
+    throw new ApplicationsConfigError(
+      typeof data.detail === 'string'
+        ? data.detail
+        : `Failed to update application config (status ${res.status}).`
+    );
   }
 
   return res.json();

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useResumePreview } from '@/components/common/resume_previewer_context';
 import type { ImprovedResult } from '@/components/common/resume_previewer_context';
@@ -24,6 +25,9 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 export default function TailorPage() {
   const { t } = useTranslations();
   const [jobDescription, setJobDescription] = useState('');
+  const [applicationCompany, setApplicationCompany] = useState('');
+  const [applicationRole, setApplicationRole] = useState('');
+  const [applicationJobUrl, setApplicationJobUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [masterResumeId, setMasterResumeId] = useState<string | null>(null);
@@ -155,7 +159,13 @@ export default function TailorPage() {
 
     const newResumeId = confirmed?.data?.resume_id;
     if (newResumeId) {
-      router.push(`/resumes/${newResumeId}`);
+      const params = new URLSearchParams();
+      params.set('createApplication', '1');
+      params.set('company', applicationCompany.trim());
+      params.set('role', applicationRole.trim());
+      params.set('jobUrl', applicationJobUrl.trim());
+      params.set('jobId', result.data.job_id);
+      router.push(`/resumes/${newResumeId}?${params.toString()}`);
     } else {
       router.push('/builder');
     }
@@ -374,6 +384,68 @@ export default function TailorPage() {
         )}
 
         <div className="space-y-6">
+          <div className="grid gap-4 border border-black bg-[#F8F8F2] p-4 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <p className="font-mono text-xs font-bold uppercase tracking-wider text-gray-700">
+                {t('tailor.applicationPrefill.title')}
+              </p>
+              <p className="mt-2 text-sm text-gray-600">
+                {t('tailor.applicationPrefill.description')}
+              </p>
+            </div>
+
+            <div className="grid gap-2">
+              <label
+                htmlFor="tailor-company"
+                className="font-mono text-xs font-bold uppercase tracking-wider text-gray-700"
+              >
+                {t('tailor.applicationPrefill.companyLabel')}
+              </label>
+              <Input
+                id="tailor-company"
+                value={applicationCompany}
+                onChange={(event) => setApplicationCompany(event.target.value)}
+                placeholder={t('tailor.applicationPrefill.companyPlaceholder')}
+                disabled={isLoading}
+                autoComplete="organization"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label
+                htmlFor="tailor-role"
+                className="font-mono text-xs font-bold uppercase tracking-wider text-gray-700"
+              >
+                {t('tailor.applicationPrefill.roleLabel')}
+              </label>
+              <Input
+                id="tailor-role"
+                value={applicationRole}
+                onChange={(event) => setApplicationRole(event.target.value)}
+                placeholder={t('tailor.applicationPrefill.rolePlaceholder')}
+                disabled={isLoading}
+                autoComplete="organization-title"
+              />
+            </div>
+
+            <div className="grid gap-2 md:col-span-2">
+              <label
+                htmlFor="tailor-job-url"
+                className="font-mono text-xs font-bold uppercase tracking-wider text-gray-700"
+              >
+                {t('tailor.applicationPrefill.jobUrlLabel')}
+              </label>
+              <Input
+                id="tailor-job-url"
+                value={applicationJobUrl}
+                onChange={(event) => setApplicationJobUrl(event.target.value)}
+                placeholder={t('tailor.applicationPrefill.jobUrlPlaceholder')}
+                disabled={isLoading}
+                autoComplete="url"
+              />
+            </div>
+          </div>
+
           <Dropdown
             options={
               promptOptions.length > 0

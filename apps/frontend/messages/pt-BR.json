@@ -533,6 +533,16 @@
     "configureApiKey": "Configurar Chave de API",
     "configureApiKeyFirst": "Configure a Chave de API Primeiro",
     "charactersCount": "{count} caracteres",
+    "applicationPrefill": {
+      "title": "Pré-preenchimento da candidatura",
+      "description": "Esses campos serão levados para o formulário de candidatura vinculada depois do tailoring, para você não precisar digitar tudo de novo.",
+      "companyLabel": "Empresa",
+      "companyPlaceholder": "ex.: Acme",
+      "roleLabel": "Cargo",
+      "rolePlaceholder": "ex.: Senior Frontend Engineer",
+      "jobUrlLabel": "URL da vaga",
+      "jobUrlPlaceholder": "https://empresa.com/vagas/123"
+    },
     "matchScore": "Pontuação de Correspondência",
     "suggestions": "Sugestões",
     "keywords": "Palavras-Chave a Incluir",
@@ -689,6 +699,24 @@
       "title": "Configurações de Prompt",
       "description": "Escolha o prompt padrão usado para personalização de currículo.",
       "defaultLabel": "Prompt padrão de personalização"
+    },
+    "applicationPipeline": {
+      "title": "Pipeline de candidaturas",
+      "description": "Gerencie os status disponíveis no rastreador de candidaturas.",
+      "hint": "Adicione, remova e reordene os status antes de salvar.",
+      "newStatusLabel": "Novo status",
+      "newStatusPlaceholder": "ex.: Interview",
+      "addAction": "Adicionar status",
+      "saveAction": "Salvar pipeline",
+      "moveUpAction": "Mover para cima",
+      "moveDownAction": "Mover para baixo",
+      "removeAction": "Remover",
+      "positionLabel": "Posição {position}",
+      "emptyState": "Adicione pelo menos um status para criar o pipeline.",
+      "emptyError": "É necessário ter pelo menos um status de candidatura.",
+      "duplicateStatusError": "Esse status já existe no pipeline.",
+      "affectedApplicationsTitle": "Estas candidaturas ainda usam os status removidos",
+      "affectedApplicationMeta": "STATUS: {status} / ID: {id}"
     },
     "footer": {
       "status": {
