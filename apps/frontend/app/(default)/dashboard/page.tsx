@@ -148,7 +148,7 @@ export default function DashboardPage() {
   const trimmedApplicationSearchQuery = applicationSearchQuery.trim();
   const hasApplicationFilters =
     trimmedApplicationSearchQuery.length > 0 || applicationStatusFilters.length > 0;
-  const visibleTailoredResumeRows = tailoredResumeRows.filter((resume) => {
+  const filteredTailoredResumeRows = tailoredResumeRows.filter((resume) => {
     const application = resume.application;
     const searchableText = [application?.company, application?.role]
       .filter(Boolean)
@@ -163,6 +163,37 @@ export default function DashboardPage() {
 
     return matchesQuery && matchesStatus;
   });
+  const visibleTailoredResumeRows = hasApplicationFilters
+    ? [...filteredTailoredResumeRows].sort((left, right) => {
+        const leftApplication = left.application;
+        const rightApplication = right.application;
+
+        if (leftApplication && !rightApplication) {
+          return -1;
+        }
+
+        if (!leftApplication && rightApplication) {
+          return 1;
+        }
+
+        const leftUpdatedAt = Date.parse(leftApplication?.updated_at ?? left.updated_at ?? '');
+        const rightUpdatedAt = Date.parse(rightApplication?.updated_at ?? right.updated_at ?? '');
+
+        if (Number.isNaN(leftUpdatedAt) && Number.isNaN(rightUpdatedAt)) {
+          return right.resume_id.localeCompare(left.resume_id);
+        }
+
+        if (Number.isNaN(leftUpdatedAt)) {
+          return 1;
+        }
+
+        if (Number.isNaN(rightUpdatedAt)) {
+          return -1;
+        }
+
+        return rightUpdatedAt - leftUpdatedAt;
+      })
+    : filteredTailoredResumeRows;
 
   // Check if LLM is configured (API key is set)
   const isLlmConfigured = !statusLoading && systemStatus?.llm_configured;
