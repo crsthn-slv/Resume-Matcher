@@ -55,24 +55,15 @@ import { useTranslations } from '@/lib/i18n';
 import { withLocalizedDefaultSections } from '@/lib/utils/section-helpers';
 import { useLanguage } from '@/lib/context/language-context';
 import { downloadBlobAsFile, openUrlInNewTab, sanitizeFilename } from '@/lib/utils/download';
+import {
+  buildApplicationPrefillState,
+  resolvePostTailorApplicationPrefill,
+  type ApplicationFormState,
+  type PostTailorApplicationPrefill,
+} from '@/lib/applications/post-tailor-prefill';
 
 type ProcessingStatus = 'pending' | 'processing' | 'ready' | 'failed';
 type ApplicationDialogMode = 'create' | 'edit';
-
-interface ApplicationFormState {
-  company: string;
-  role: string;
-  jobUrl: string;
-  notes: string;
-}
-
-interface PostTailorApplicationPrefill {
-  shouldCreate: boolean;
-  company: string | null;
-  role: string | null;
-  jobUrl: string | null;
-  jobId: string | null;
-}
 
 const EMPTY_APPLICATION_FORM: ApplicationFormState = {
   company: '',
@@ -91,19 +82,6 @@ function toApplicationFormState(application: ApplicationListItem | null): Applic
     role: application.role,
     jobUrl: application.job_url ?? '',
     notes: application.notes ?? '',
-  };
-}
-
-function buildApplicationPrefillState(prefill: {
-  company?: string | null;
-  role?: string | null;
-  jobUrl?: string | null;
-}): ApplicationFormState {
-  return {
-    company: prefill.company?.trim() ?? '',
-    role: prefill.role?.trim() ?? '',
-    jobUrl: prefill.jobUrl?.trim() ?? '',
-    notes: '',
   };
 }
 
@@ -168,13 +146,7 @@ export default function ResumeViewerPage() {
 
   const resumeId = params?.id as string;
   const postTailorPrefill = useMemo(
-    () => ({
-      shouldCreate: searchParams.get('createApplication') === '1',
-      company: searchParams.get('company'),
-      role: searchParams.get('role'),
-      jobUrl: searchParams.get('jobUrl'),
-      jobId: searchParams.get('jobId'),
-    }),
+    () => resolvePostTailorApplicationPrefill(searchParams),
     [searchParams]
   );
 

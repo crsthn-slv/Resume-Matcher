@@ -99,6 +99,16 @@ class TestApplicationEndpoints(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.job_id, job["job_id"])
         self.assertEqual(result.status_history[0].source, "tailor_create")
 
+    async def test_default_status_falls_back_to_first_configured_status(self) -> None:
+        self.config_store["application_statuses"] = ["Wishlist", "Interview"]
+
+        result = await applications_router.create_application(
+            CreateApplicationRequest(company="ACME", role="Backend Engineer")
+        )
+
+        self.assertEqual(result.status, "Wishlist")
+        self.assertEqual(result.status_history[0].to_status, "Wishlist")
+
     async def test_status_change_appends_history(self) -> None:
         created = await applications_router.create_application(
             CreateApplicationRequest(company="ACME", role="Engineer")
@@ -135,6 +145,21 @@ class TestApplicationEndpoints(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(HTTPException) as context:
             await applications_router.create_application(
                 CreateApplicationRequest(company="ACME", role="Engineer", status="Applied")
+            )
+
+        self.assertEqual(context.exception.status_code, 400)
+        self.assertIn("Invalid application status", str(context.exception.detail))
+
+    async def test_invalid_status_change_is_rejected(self) -> None:
+        created = await applications_router.create_application(
+            CreateApplicationRequest(company="ACME", role="Engineer")
+        )
+        self.config_store["application_statuses"] = ["Applied", "Interview"]
+
+        with self.assertRaises(HTTPException) as context:
+            await applications_router.update_application_status(
+                created.application_id,
+                UpdateApplicationStatusRequest(status="Offer"),
             )
 
         self.assertEqual(context.exception.status_code, 400)
