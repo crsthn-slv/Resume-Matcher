@@ -98,6 +98,15 @@
       "dropzoneSubtitle": "PDF、DOC、DOCX（最大 4MB）",
       "tryDifferentFile": "尝试其他文件",
       "parsingFailedKeepOpen": "AI 解析失败。请尝试其他文件，或关闭此对话框。"
+    },
+    "applicationFilters": {
+      "searchLabel": "按公司或职位搜索",
+      "searchPlaceholder": "公司或职位",
+      "statusLabel": "申请状态",
+      "allStatuses": "所有状态",
+      "clearFilters": "清除筛选",
+      "activeSummary": "{count} 份定制简历符合当前筛选条件",
+      "emptyState": "没有定制简历符合当前的申请筛选条件。"
     }
   },
   "builder": {

@@ -98,6 +98,15 @@
       "dropzoneSubtitle": "PDF, DOC, DOCX (Max 4MB)",
       "tryDifferentFile": "Try Different File",
       "parsingFailedKeepOpen": "AI parsing failed. Try a different file or close this dialog."
+    },
+    "applicationFilters": {
+      "searchLabel": "Search by company or role",
+      "searchPlaceholder": "Company or role",
+      "statusLabel": "Application status",
+      "allStatuses": "All statuses",
+      "clearFilters": "Clear filters",
+      "activeSummary": "{count} tailored resumes match the current filters",
+      "emptyState": "No tailored resumes match the current application filters."
     }
   },
   "builder": {

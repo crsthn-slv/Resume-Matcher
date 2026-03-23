@@ -27,6 +27,7 @@ import {
   type ResumeListItem,
 } from '@/lib/api/resume';
 import {
+  fetchApplicationConfig,
   fetchApplications,
   indexApplicationsByResumeId,
   type ApplicationListItem,
@@ -38,6 +39,36 @@ type TailoredResumeRow = ResumeListItem & {
   application: ApplicationListItem | null;
 };
 
+function formatApplicationStatusLabel(status: string): string {
+  return status
+    .trim()
+    .replace(/[\s_-]+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function uniqueStatuses(statuses: string[]): string[] {
+  const seen = new Set<string>();
+  const unique: string[] = [];
+
+  for (const status of statuses) {
+    const normalized = status.trim();
+    if (!normalized) {
+      continue;
+    }
+
+    const key = normalized.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(normalized);
+    }
+  }
+
+  return unique;
+}
+
 export default function DashboardPage() {
   const { t, locale } = useTranslations();
   const [masterResumeId, setMasterResumeId] = useState<string | null>(null);
@@ -45,8 +76,9 @@ export default function DashboardPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [tailoredResumes, setTailoredResumes] = useState<ResumeListItem[]>([]);
   const [applicationRows, setApplicationRows] = useState<ApplicationListItem[]>([]);
-  const [applicationSearchQuery] = useState('');
-  const [applicationStatusFilters] = useState<string[]>([]);
+  const [applicationSearchQuery, setApplicationSearchQuery] = useState('');
+  const [applicationStatusFilters, setApplicationStatusFilters] = useState<string[]>([]);
+  const [applicationPipelineStatuses, setApplicationPipelineStatuses] = useState<string[]>([]);
   const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -70,20 +102,26 @@ export default function DashboardPage() {
     ...resume,
     application: applicationsByResumeId.get(resume.resume_id) ?? null,
   }));
+  const applicationStatusOptions = (() => {
+    const configuredStatuses = uniqueStatuses(applicationPipelineStatuses);
+    if (configuredStatuses.length > 0) {
+      return configuredStatuses;
+    }
+
+    return uniqueStatuses(applicationRows.map((application) => application.status));
+  })();
+  const trimmedApplicationSearchQuery = applicationSearchQuery.trim();
+  const hasApplicationFilters =
+    trimmedApplicationSearchQuery.length > 0 || applicationStatusFilters.length > 0;
   const visibleTailoredResumeRows = tailoredResumeRows.filter((resume) => {
     const application = resume.application;
-    const searchableText = [
-      application?.company,
-      application?.role,
-      resume.title,
-      resume.filename,
-      resume.jobSnippet,
-    ]
+    const searchableText = [application?.company, application?.role]
       .filter(Boolean)
       .join(' ')
       .toLowerCase();
-    const query = applicationSearchQuery.trim().toLowerCase();
-    const matchesQuery = query ? searchableText.includes(query) : true;
+    const matchesQuery = trimmedApplicationSearchQuery
+      ? searchableText.includes(trimmedApplicationSearchQuery.toLowerCase())
+      : true;
     const matchesStatus =
       applicationStatusFilters.length === 0 ||
       (application ? applicationStatusFilters.includes(application.status) : false);
@@ -143,9 +181,10 @@ export default function DashboardPage() {
     setIsApplicationsLoading(true);
 
     try {
-      const [resumeResult, applicationResult] = await Promise.allSettled([
+      const [resumeResult, applicationResult, applicationConfigResult] = await Promise.allSettled([
         fetchResumeList(true),
         fetchApplications(),
+        fetchApplicationConfig(),
       ]);
 
       if (resumeResult.status === 'rejected') {
@@ -158,6 +197,13 @@ export default function DashboardPage() {
       } else {
         console.error('Failed to load applications:', applicationResult.reason);
         setApplicationRows([]);
+      }
+
+      if (applicationConfigResult.status === 'fulfilled') {
+        setApplicationPipelineStatuses(applicationConfigResult.value.statuses);
+      } else {
+        console.error('Failed to load application config:', applicationConfigResult.reason);
+        setApplicationPipelineStatuses([]);
       }
 
       const masterFromList = data.find((r) => r.is_master);
@@ -352,6 +398,21 @@ export default function DashboardPage() {
   // Using the hex values from before to maintain exact look, or we could map them to variants
   const fillerPalette = ['bg-[#E5E5E0]', 'bg-[#D8D8D2]', 'bg-[#CFCFC7]', 'bg-[#E0E0D8]'];
 
+  const handleApplicationSearchChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setApplicationSearchQuery(event.target.value);
+  };
+
+  const toggleApplicationStatusFilter = (status: string): void => {
+    setApplicationStatusFilters((current) =>
+      current.includes(status) ? current.filter((value) => value !== status) : [...current, status]
+    );
+  };
+
+  const clearApplicationFilters = (): void => {
+    setApplicationSearchQuery('');
+    setApplicationStatusFilters([]);
+  };
+
   return (
     <div className="space-y-6">
       {/* Configuration Warning Banner */}
@@ -376,6 +437,79 @@ export default function DashboardPage() {
           </Link>
         </div>
       )}
+
+      <div className="border-2 border-black bg-[#E5E5E0] p-4 shadow-sw-default">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+          <label className="space-y-2">
+            <span className="block font-mono text-xs font-bold uppercase tracking-wider text-gray-700">
+              {t('dashboard.applicationFilters.searchLabel')}
+            </span>
+            <input
+              type="search"
+              value={applicationSearchQuery}
+              onChange={handleApplicationSearchChange}
+              placeholder={t('dashboard.applicationFilters.searchPlaceholder')}
+              className="w-full border-2 border-black bg-[#F0F0E8] px-3 py-3 font-mono text-sm text-black placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-700 rounded-none"
+            />
+          </label>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-700">
+                {t('dashboard.applicationFilters.statusLabel')}
+              </span>
+              {(hasApplicationFilters || applicationStatusFilters.length > 0) && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 text-[10px]"
+                  onClick={clearApplicationFilters}
+                >
+                  {t('dashboard.applicationFilters.clearFilters')}
+                </Button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant={applicationStatusFilters.length === 0 ? 'default' : 'outline'}
+                size="sm"
+                className="h-8 px-3 text-[10px]"
+                onClick={() => setApplicationStatusFilters([])}
+              >
+                {t('dashboard.applicationFilters.allStatuses')}
+              </Button>
+              {applicationStatusOptions.map((status) => {
+                const isSelected = applicationStatusFilters.includes(status);
+                return (
+                  <Button
+                    key={status}
+                    type="button"
+                    variant={isSelected ? 'default' : 'outline'}
+                    size="sm"
+                    className="h-8 px-3 text-[10px]"
+                    onClick={() => toggleApplicationStatusFilter(status)}
+                  >
+                    {formatApplicationStatusLabel(status)}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {hasApplicationFilters && (
+          <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-gray-600">
+            {visibleTailoredResumeRows.length > 0
+              ? t('dashboard.applicationFilters.activeSummary', {
+                  count: visibleTailoredResumeRows.length,
+                })
+              : t('dashboard.applicationFilters.emptyState')}
+          </p>
+        )}
+      </div>
 
       <SwissGrid>
         {/* 1. Master Resume Logic */}
