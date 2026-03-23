@@ -107,6 +107,9 @@
       "clearFilters": "Limpiar filtros",
       "activeSummary": "{count} currículums personalizados coinciden con los filtros actuales",
       "emptyState": "Ningún currículum personalizado coincide con los filtros de solicitud actuales."
+    },
+    "inlineStatus": {
+      "saveFailed": "No se pudo actualizar el estado. Inténtalo de nuevo."
     }
   },
   "builder": {
@@ -786,6 +789,7 @@
       "historyEmpty": "Aún no hay cambios de estado.",
       "formHint": "Las actualizaciones de estado se gestionan aparte de los metadatos.",
       "formValidation": "La empresa y el puesto son obligatorios.",
+      "inlinePrefillIncomplete": "Completa la empresa o el puesto que faltan antes de guardar esta solicitud.",
       "saveFailed": "No se pudo guardar la solicitud. Inténtalo de nuevo.",
       "statusUpdateFailed": "No se pudo actualizar el estado. Inténtalo de nuevo.",
       "sources": {

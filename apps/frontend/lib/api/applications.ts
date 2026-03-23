@@ -68,6 +68,31 @@ export interface ApplicationListFilters {
   status?: string[];
 }
 
+export interface ApplicationPrefillState {
+  company: string | null;
+  role: string | null;
+  jobUrl: string | null;
+  notes: string | null;
+}
+
+export interface DashboardApplicationPrefillSource {
+  resumeId: string;
+  resumeTitle?: string | null;
+  jobId?: string | null;
+  jobUrl?: string | null;
+}
+
+export type DashboardApplicationQuickCreateResult =
+  | {
+      kind: 'ready';
+      payload: CreateApplicationRequest;
+      prefill: ApplicationPrefillState;
+    }
+  | {
+      kind: 'insufficient';
+      prefill: ApplicationPrefillState;
+    };
+
 interface ApplicationReference {
   resume_id?: string | null;
 }
@@ -96,6 +121,38 @@ function buildApplicationQueryParams(filters: ApplicationListFilters = {}): stri
 
   const query = params.toString();
   return query ? `?${query}` : '';
+}
+
+function normalizeStatusValue(status: string): string {
+  return status.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function parseResumeTitleForApplication(title?: string | null): ApplicationPrefillState {
+  const normalizedTitle = title?.trim() ?? '';
+  if (!normalizedTitle) {
+    return { company: null, role: null, jobUrl: null, notes: null };
+  }
+
+  const patterns = [/\s+@\s+/i, /\s+at\s+/i, /\s+\|\s+/, /\s+–\s+/, /\s+—\s+/, /\s+-\s+/];
+
+  for (const pattern of patterns) {
+    const parts = normalizedTitle.split(pattern).map((value) => value.trim());
+    if (parts.length === 2 && parts[0] && parts[1]) {
+      return {
+        role: parts[0],
+        company: parts[1],
+        jobUrl: null,
+        notes: null,
+      };
+    }
+  }
+
+  return {
+    role: normalizedTitle,
+    company: null,
+    jobUrl: null,
+    notes: null,
+  };
 }
 
 async function resolveApplicationError(response: Response, fallback: string): Promise<never> {
@@ -129,6 +186,73 @@ export function resolveApplicationByResumeId<T extends ApplicationReference>(
   }
 
   return indexApplicationsByResumeId(applications).get(normalizedResumeId) ?? null;
+}
+
+export function normalizeApplicationStatuses(statuses: string[]): string[] {
+  const deduped = new Set<string>();
+
+  for (const status of statuses) {
+    const trimmed = status.trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    const key = normalizeStatusValue(trimmed);
+    if (!deduped.has(key)) {
+      deduped.add(key);
+    }
+  }
+
+  return Array.from(deduped).map((normalizedStatus) => {
+    const original = statuses.find((status) => normalizeStatusValue(status) === normalizedStatus);
+    return original?.trim() ?? normalizedStatus;
+  });
+}
+
+export function buildOptimisticApplicationStatus<T extends ApplicationRecord>(
+  application: T,
+  status: string
+): T {
+  return {
+    ...application,
+    status: status.trim(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+export function buildDashboardApplicationQuickCreate(
+  source: DashboardApplicationPrefillSource,
+  status: string
+): DashboardApplicationQuickCreateResult {
+  const prefill = parseResumeTitleForApplication(source.resumeTitle);
+  const resumeId = source.resumeId.trim();
+  const resolvedStatus = status.trim();
+
+  const nextPrefill: ApplicationPrefillState = {
+    ...prefill,
+    jobUrl: source.jobUrl?.trim() || null,
+  };
+
+  if (!resumeId || !resolvedStatus || !nextPrefill.company || !nextPrefill.role) {
+    return {
+      kind: 'insufficient',
+      prefill: nextPrefill,
+    };
+  }
+
+  return {
+    kind: 'ready',
+    prefill: nextPrefill,
+    payload: {
+      company: nextPrefill.company,
+      role: nextPrefill.role,
+      status: resolvedStatus,
+      job_url: nextPrefill.jobUrl,
+      notes: null,
+      resume_id: resumeId,
+      job_id: source.jobId?.trim() || null,
+    },
+  };
 }
 
 export async function fetchApplications(

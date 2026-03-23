@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { cn } from '@/lib/utils';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -8,6 +9,11 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 interface CardBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: 'default' | 'success' | 'warning' | 'danger' | 'outline';
+}
+
+interface InteractiveCardBadgeProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'outline';
+  isLoading?: boolean;
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -70,20 +76,12 @@ CardDescription.displayName = 'CardDescription';
 
 const CardBadge = React.forwardRef<HTMLSpanElement, CardBadgeProps>(
   ({ className, variant = 'default', ...props }, ref) => {
-    const variants = {
-      default: 'bg-[#E5E5E0] text-black',
-      success: 'bg-green-700 text-white',
-      warning: 'bg-orange-500 text-white',
-      danger: 'bg-red-600 text-white',
-      outline: 'bg-transparent text-black',
-    };
-
     return (
       <span
         ref={ref}
         className={cn(
           'inline-flex items-center border border-black px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.18em] leading-none rounded-none shadow-[1px_1px_0px_0px_#000000]',
-          variants[variant],
+          getBadgeVariantClasses(variant),
           className
         )}
         {...props}
@@ -92,6 +90,42 @@ const CardBadge = React.forwardRef<HTMLSpanElement, CardBadgeProps>(
   }
 );
 CardBadge.displayName = 'CardBadge';
+
+function getBadgeVariantClasses(variant: NonNullable<CardBadgeProps['variant']>): string {
+  const variants = {
+    default: 'bg-[#E5E5E0] text-black',
+    success: 'bg-green-700 text-white',
+    warning: 'bg-orange-500 text-white',
+    danger: 'bg-red-600 text-white',
+    outline: 'bg-transparent text-black',
+  };
+
+  return variants[variant];
+}
+
+const InteractiveCardBadge = React.forwardRef<HTMLButtonElement, InteractiveCardBadgeProps>(
+  ({ className, variant = 'default', isLoading = false, children, disabled, ...props }, ref) => (
+    <button
+      ref={ref}
+      type="button"
+      disabled={disabled || isLoading}
+      className={cn(
+        'inline-flex min-w-0 items-center gap-1.5 border border-black px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.18em] leading-none rounded-none shadow-[1px_1px_0px_0px_#000000] transition-transform duration-150',
+        getBadgeVariantClasses(variant),
+        disabled || isLoading
+          ? 'cursor-not-allowed opacity-80'
+          : 'cursor-pointer hover:-translate-y-px hover:-translate-x-px',
+        className
+      )}
+      aria-busy={isLoading}
+      {...props}
+    >
+      <span className="truncate">{children}</span>
+      {isLoading ? <Loader2 className="h-3 w-3 shrink-0 animate-spin" /> : null}
+    </button>
+  )
+);
+InteractiveCardBadge.displayName = 'InteractiveCardBadge';
 
 const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => <div ref={ref} className={cn('flex-1', className)} {...props} />
@@ -105,4 +139,13 @@ const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 );
 CardFooter.displayName = 'CardFooter';
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardBadge };
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardBadge,
+  InteractiveCardBadge,
+};

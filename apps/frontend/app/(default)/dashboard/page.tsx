@@ -6,7 +6,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { Card, CardBadge, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardTitle, CardDescription, InteractiveCardBadge } from '@/components/ui/card';
+import { Dropdown } from '@/components/ui/dropdown';
 import Link from 'next/link';
 import { useTranslations } from '@/lib/i18n';
 
@@ -27,10 +28,15 @@ import {
   type ResumeListItem,
 } from '@/lib/api/resume';
 import {
+  buildOptimisticApplicationStatus,
+  buildDashboardApplicationQuickCreate,
+  createApplication,
   fetchApplicationConfig,
   fetchApplications,
   indexApplicationsByResumeId,
+  normalizeApplicationStatuses,
   type ApplicationListItem,
+  updateApplicationStatus,
 } from '@/lib/api/applications';
 import {
   formatApplicationStatusLabel,
@@ -41,6 +47,7 @@ import {
   filterTailoredResumeRows,
 } from '@/lib/dashboard/application-filtering';
 import { useStatusCache } from '@/lib/context/status-cache';
+import { buildApplicationPrefillQuery } from '@/lib/applications/post-tailor-prefill';
 
 type ProcessingStatus = 'pending' | 'processing' | 'ready' | 'failed' | 'loading';
 
@@ -55,6 +62,10 @@ export default function DashboardPage() {
   const [applicationStatusFilters, setApplicationStatusFilters] = useState<string[]>([]);
   const [applicationPipelineStatuses, setApplicationPipelineStatuses] = useState<string[]>([]);
   const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
+  const [applicationStatusActionByResumeId, setApplicationStatusActionByResumeId] = useState<
+    Record<string, string>
+  >({});
+  const [applicationStatusNotice, setApplicationStatusNotice] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const router = useRouter();
@@ -78,7 +89,7 @@ export default function DashboardPage() {
     application: applicationsByResumeId.get(resume.resume_id) ?? null,
   }));
   const applicationStatusOptions = (() => {
-    const configuredStatuses = uniqueStatuses(applicationPipelineStatuses);
+    const configuredStatuses = normalizeApplicationStatuses(applicationPipelineStatuses);
     if (configuredStatuses.length > 0) {
       return configuredStatuses;
     }
@@ -198,23 +209,32 @@ export default function DashboardPage() {
       // Guard against concurrent invocations overwriting each other
       // Fetch job description snippets for tailored resumes in parallel and attach to state
       // Use a small in-memory cache to avoid re-fetching the same snippet repeatedly.
-      const jobSnippets: Record<string, string> = {};
+      const jobDetails: Record<string, { snippet: string; jobId: string | null }> = {};
       await Promise.all(
         tailoredWithParent.map(async (r) => {
           // Use cached snippet when available
           if (jobSnippetCacheRef.current[r.resume_id]) {
-            jobSnippets[r.resume_id] = jobSnippetCacheRef.current[r.resume_id];
+            jobDetails[r.resume_id] = {
+              snippet: jobSnippetCacheRef.current[r.resume_id],
+              jobId: null,
+            };
             return;
           }
           try {
             const jd = await fetchJobDescription(r.resume_id);
             const snippet = (jd?.content || '').slice(0, 80);
             jobSnippetCacheRef.current[r.resume_id] = snippet;
-            jobSnippets[r.resume_id] = snippet;
+            jobDetails[r.resume_id] = {
+              snippet,
+              jobId: jd?.job_id ?? null,
+            };
           } catch {
             // ignore missing job descriptions and cache empty result
             jobSnippetCacheRef.current[r.resume_id] = '';
-            jobSnippets[r.resume_id] = '';
+            jobDetails[r.resume_id] = {
+              snippet: '',
+              jobId: null,
+            };
           }
         })
       );
@@ -222,7 +242,11 @@ export default function DashboardPage() {
       // Only apply results if this invocation is the latest (prevents stale overwrite)
       if (requestId === loadRequestIdRef.current) {
         setTailoredResumes((prev) =>
-          prev.map((r) => ({ ...r, jobSnippet: jobSnippets[r.resume_id] || '' }))
+          prev.map((r) => ({
+            ...r,
+            jobSnippet: jobDetails[r.resume_id]?.snippet || '',
+            jobId: jobDetails[r.resume_id]?.jobId ?? null,
+          }))
         );
       }
     } catch (err) {
@@ -238,6 +262,18 @@ export default function DashboardPage() {
   useEffect(() => {
     loadTailoredResumes();
   }, [loadTailoredResumes]);
+
+  useEffect(() => {
+    if (!applicationStatusNotice) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setApplicationStatusNotice(null);
+    }, 3500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [applicationStatusNotice]);
 
   // Refresh list when window gains focus (e.g., returning from viewer after delete)
   useEffect(() => {
@@ -381,8 +417,138 @@ export default function DashboardPage() {
     setApplicationStatusFilters([]);
   };
 
+  const setResumeStatusAction = (resumeId: string, status: string | null): void => {
+    setApplicationStatusActionByResumeId((current) => {
+      if (!status) {
+        if (!current[resumeId]) {
+          return current;
+        }
+
+        const next = { ...current };
+        delete next[resumeId];
+        return next;
+      }
+
+      return {
+        ...current,
+        [resumeId]: status,
+      };
+    });
+  };
+
+  const handleInlineStatusSelect = async (
+    resume: TailoredResumeRow,
+    nextStatus: string
+  ): Promise<void> => {
+    if (applicationStatusActionByResumeId[resume.resume_id] || !nextStatus.trim()) {
+      return;
+    }
+
+    setApplicationStatusNotice(null);
+    setResumeStatusAction(resume.resume_id, nextStatus);
+
+    if (resume.application) {
+      if (resume.application.status === nextStatus) {
+        setResumeStatusAction(resume.resume_id, null);
+        return;
+      }
+
+      const previousApplication = resume.application;
+      const optimisticApplication = buildOptimisticApplicationStatus(
+        previousApplication,
+        nextStatus
+      );
+
+      setApplicationRows((current) =>
+        current.map((application) =>
+          application.application_id === previousApplication.application_id
+            ? optimisticApplication
+            : application
+        )
+      );
+
+      try {
+        const updatedApplication = await updateApplicationStatus(
+          previousApplication.application_id,
+          {
+            status: nextStatus,
+          }
+        );
+        setApplicationRows((current) =>
+          current.map((application) =>
+            application.application_id === previousApplication.application_id
+              ? {
+                  ...application,
+                  ...updatedApplication,
+                }
+              : application
+          )
+        );
+      } catch (err) {
+        console.error('Failed to update dashboard application status:', err);
+        setApplicationRows((current) =>
+          current.map((application) =>
+            application.application_id === previousApplication.application_id
+              ? previousApplication
+              : application
+          )
+        );
+        setApplicationStatusNotice(t('dashboard.inlineStatus.saveFailed'));
+      } finally {
+        setResumeStatusAction(resume.resume_id, null);
+      }
+
+      return;
+    }
+
+    const quickCreate = buildDashboardApplicationQuickCreate(
+      {
+        resumeId: resume.resume_id,
+        resumeTitle: resume.title ?? resume.jobSnippet ?? resume.filename,
+        jobId: resume.jobId ?? null,
+      },
+      nextStatus
+    );
+
+    if (quickCreate.kind === 'insufficient') {
+      const query = buildApplicationPrefillQuery({
+        shouldCreate: true,
+        shouldOpenForm: true,
+        company: quickCreate.prefill.company,
+        role: quickCreate.prefill.role,
+        jobId: resume.jobId ?? null,
+      });
+      setResumeStatusAction(resume.resume_id, null);
+      router.push(`/resumes/${resume.resume_id}?${query}`);
+      return;
+    }
+
+    try {
+      const createdApplication = await createApplication(quickCreate.payload);
+      setApplicationRows((current) => [
+        {
+          ...createdApplication,
+          resume_title: resume.title ?? null,
+          has_job_description: Boolean(resume.jobId),
+        },
+        ...current,
+      ]);
+    } catch (err) {
+      console.error('Failed to quick-create dashboard application:', err);
+      setApplicationStatusNotice(t('dashboard.inlineStatus.saveFailed'));
+    } finally {
+      setResumeStatusAction(resume.resume_id, null);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {applicationStatusNotice ? (
+        <div className="border border-red-600 bg-red-50 px-4 py-3 font-mono text-xs uppercase tracking-wider text-red-700 shadow-[4px_4px_0px_0px_#000000]">
+          {applicationStatusNotice}
+        </div>
+      ) : null}
+
       {/* Configuration Warning Banner */}
       {masterResumeId && !isLlmConfigured && !statusLoading && (
         <div className="border-2 border-warning bg-amber-50 p-4 shadow-sw-default mb-6 flex items-center justify-between">
@@ -616,6 +782,10 @@ export default function DashboardPage() {
           const title =
             resume.title || resume.jobSnippet || resume.filename || t('dashboard.tailoredResume');
           const color = cardPalette[hashTitle(title) % cardPalette.length];
+          const optimisticStatus = applicationStatusActionByResumeId[resume.resume_id];
+          const fallbackStatus = applicationStatusOptions[0] ?? '';
+          const badgeStatus = optimisticStatus || resume.application?.status || fallbackStatus;
+          const isInlineStatusPending = Boolean(optimisticStatus);
           return (
             <Card
               key={resume.resume_id}
@@ -635,11 +805,33 @@ export default function DashboardPage() {
                     <span className="font-mono font-bold">{getMonogram(title)}</span>
                   </div>
                   <div className="flex flex-col items-end gap-2 text-right">
-                    {resume.application && (
-                      <CardBadge variant={getApplicationBadgeVariant(resume.application.status)}>
-                        {formatApplicationStatusLabel(resume.application.status)}
-                      </CardBadge>
-                    )}
+                    {badgeStatus ? (
+                      <Dropdown
+                        options={applicationStatusOptions.map((status) => ({
+                          id: status,
+                          label: formatApplicationStatusLabel(status),
+                        }))}
+                        value={badgeStatus}
+                        onChange={(value) => void handleInlineStatusSelect(resume, value)}
+                        disabled={!applicationStatusOptions.length || isInlineStatusPending}
+                        className="space-y-0"
+                        menuClassName="left-auto right-0 min-w-[9rem]"
+                        renderTrigger={({ toggle, isOpen, disabled }) => (
+                          <InteractiveCardBadge
+                            variant={getApplicationBadgeVariant(badgeStatus)}
+                            isLoading={isInlineStatusPending}
+                            disabled={disabled}
+                            aria-expanded={isOpen}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggle();
+                            }}
+                          >
+                            {formatApplicationStatusLabel(badgeStatus)}
+                          </InteractiveCardBadge>
+                        )}
+                      />
+                    ) : null}
                     <span className="font-mono text-xs text-gray-500 uppercase">
                       {resume.processing_status}
                     </span>

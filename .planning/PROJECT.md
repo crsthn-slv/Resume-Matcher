@@ -50,18 +50,32 @@ Existing frontend patterns should be preserved: Swiss-style UI, shared component
 
 ## Key Decisions
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Introduce `application` as a first-class model separate from `job` | Tracking user progress through a hiring pipeline is not the same concern as storing a job description | Phase 1 |
-| Use the existing dashboard and tailored-resume flow as the tracker surface | The user wants application tracking to live inside the current resume workflow instead of a new standalone table | 2026-03-23 |
-| Centralize pipeline validation in backend config endpoints | Status integrity must not depend on frontend behavior | 2026-03-23 |
-| Offer application creation after tailoring through the resume viewer handoff with editable prefill | Preserves a resume-centric workflow while reducing re-entry for `company`, `role`, and `job_url` | 2026-03-23 |
+| Decision                                                                                           | Rationale                                                                                                        | Outcome    |
+| -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------- |
+| Introduce `application` as a first-class model separate from `job`                                 | Tracking user progress through a hiring pipeline is not the same concern as storing a job description            | Phase 1    |
+| Use the existing dashboard and tailored-resume flow as the tracker surface                         | The user wants application tracking to live inside the current resume workflow instead of a new standalone table | 2026-03-23 |
+| Centralize pipeline validation in backend config endpoints                                         | Status integrity must not depend on frontend behavior                                                            | 2026-03-23 |
+| Offer application creation after tailoring through the resume viewer handoff with editable prefill | Preserves a resume-centric workflow while reducing re-entry for `company`, `role`, and `job_url`                 | 2026-03-23 |
+| Make the visible status badge the primary interaction trigger on dashboard and resume viewer       | Reduces tracker friction while preserving backend status authority and the existing tracker surfaces             | 2026-03-23 |
+
+## Current State
+
+- `v1.0` shipped on `2026-03-23`
+- The product now supports end-to-end resume-linked application tracking inside the existing dashboard, resume viewer, Settings, and tailoring workflow.
+- All `21/21` v1 requirements are satisfied, all `5/5` phases are verified, and all `5/5` phases are Nyquist-compliant.
+
+## Next Milestone Goals
+
+- Define the next milestone from a fresh requirements baseline.
+- Decide whether the next expansion should focus on tracker depth, broader automation, or non-tracker product areas.
+- Start with `[$gsd-new-milestone](/Users/cristhian/Downloads/Projetos/Resume Matcher/.codex/skills/gsd-new-milestone/SKILL.md)` so requirements and roadmap are recreated cleanly.
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
 **After each phase transition** (via `$gsd-transition`):
+
 1. Requirements invalidated? → Move to Out of Scope with reason
 2. Requirements validated? → Move to Validated with phase reference
 3. New requirements emerged? → Add to Active
@@ -69,10 +83,12 @@ This document evolves at phase transitions and milestone boundaries.
 5. "What This Is" still accurate? → Update if drifted
 
 **After each milestone** (via `$gsd-complete-milestone`):
+
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-23 after milestone direction change to resume-linked tracking*
+
+_Last updated: 2026-03-23 after v1.0 milestone completion_

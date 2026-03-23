@@ -107,6 +107,9 @@
       "clearFilters": "Limpar filtros",
       "activeSummary": "{count} currículos personalizados correspondem aos filtros atuais",
       "emptyState": "Nenhum currículo personalizado corresponde aos filtros de candidatura atuais."
+    },
+    "inlineStatus": {
+      "saveFailed": "Não foi possível atualizar o status. Tente novamente."
     }
   },
   "builder": {
@@ -786,6 +789,7 @@
       "historyEmpty": "Ainda não há mudanças de status.",
       "formHint": "As atualizações de status são tratadas separadamente dos metadados.",
       "formValidation": "Empresa e cargo são obrigatórios.",
+      "inlinePrefillIncomplete": "Preencha a empresa ou o cargo que faltam antes de salvar esta candidatura.",
       "saveFailed": "Não foi possível salvar a candidatura. Tente novamente.",
       "statusUpdateFailed": "Não foi possível atualizar o status. Tente novamente.",
       "sources": {

@@ -106,6 +106,7 @@ export interface ResumeListItem {
   title?: string | null;
   // Optional lightweight snippet of associated job description (populated client-side)
   jobSnippet?: string;
+  jobId?: string | null;
 }
 
 async function postImprove(

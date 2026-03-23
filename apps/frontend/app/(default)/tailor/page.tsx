@@ -21,6 +21,7 @@ import { Loader2, ArrowLeft, AlertTriangle, Settings } from 'lucide-react';
 import { useTranslations } from '@/lib/i18n';
 import { DiffPreviewModal } from '@/components/tailor/diff-preview-modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { buildApplicationPrefillQuery } from '@/lib/applications/post-tailor-prefill';
 
 export default function TailorPage() {
   const { t } = useTranslations();
@@ -159,12 +160,13 @@ export default function TailorPage() {
 
     const newResumeId = confirmed?.data?.resume_id;
     if (newResumeId) {
-      const params = new URLSearchParams();
-      params.set('createApplication', '1');
-      params.set('company', applicationCompany.trim());
-      params.set('role', applicationRole.trim());
-      params.set('jobUrl', applicationJobUrl.trim());
-      params.set('jobId', result.data.job_id);
+      const params = buildApplicationPrefillQuery({
+        shouldCreate: true,
+        company: applicationCompany.trim(),
+        role: applicationRole.trim(),
+        jobUrl: applicationJobUrl.trim(),
+        jobId: result.data.job_id,
+      });
       router.push(`/resumes/${newResumeId}?${params.toString()}`);
     } else {
       router.push('/builder');

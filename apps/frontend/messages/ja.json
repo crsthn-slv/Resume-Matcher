@@ -107,6 +107,9 @@
       "clearFilters": "フィルターをクリア",
       "activeSummary": "{count} 件のカスタマイズ履歴書が現在のフィルターに一致",
       "emptyState": "現在の応募フィルターに一致するカスタマイズ履歴書はありません。"
+    },
+    "inlineStatus": {
+      "saveFailed": "ステータスを更新できませんでした。もう一度お試しください。"
     }
   },
   "builder": {
@@ -786,6 +789,7 @@
       "historyEmpty": "まだステータス変更はありません。",
       "formHint": "ステータス更新はメタデータとは別に処理されます。",
       "formValidation": "会社名と職種は必須です。",
+      "inlinePrefillIncomplete": "この申請を保存する前に、不足している会社名または職種を入力してください。",
       "saveFailed": "申請を保存できませんでした。もう一度お試しください。",
       "statusUpdateFailed": "ステータスを更新できませんでした。もう一度お試しください。",
       "sources": {
