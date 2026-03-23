@@ -47,7 +47,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Add frontend application API client, types, and dashboard data-loading state for resume-linked application metadata.
+- [x] 02-01: Add frontend application API client, types, and dashboard data-loading state for resume-linked application metadata.
 - [ ] 02-02: Integrate application status, search, and filtering into the existing dashboard tailored-resume entries.
 - [ ] 02-03: Build linked application details/edit/status flows from the tailored-resume experience.
 

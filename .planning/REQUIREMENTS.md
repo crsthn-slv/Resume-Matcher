@@ -19,12 +19,12 @@
 - [ ] **PIPE-01**: User can change an application's status only through the dedicated status endpoint, and each change appends a timestamped history entry.
 - [ ] **PIPE-02**: User can only create or update applications with statuses that exist in the current configured pipeline.
 - [ ] **PIPE-03**: User gets the default `Applied` status on creation when it exists, otherwise the first configured status is used.
-- [ ] **PIPE-04**: User can search resume-linked applications by free text over company and role from the dashboard experience.
-- [ ] **PIPE-05**: User can filter resume-linked applications by one or more statuses from the dashboard experience and see results ordered by most recently updated.
+- [x] **PIPE-04**: User can search resume-linked applications by free text over company and role from the dashboard experience.
+- [x] **PIPE-05**: User can filter resume-linked applications by one or more statuses from the dashboard experience and see results ordered by most recently updated.
 
 ### Dashboard
 
-- [ ] **DASH-01**: User can keep using the existing dashboard as the main surface, with application tracking integrated into tailored-resume entries instead of a separate applications section.
+- [x] **DASH-01**: User can keep using the existing dashboard as the main surface, with application tracking integrated into tailored-resume entries instead of a separate applications section.
 - [ ] **DASH-02**: User can scan tailored-resume entries and understand application state through visible status and linked vacancy metadata.
 - [ ] **DASH-03**: User can open a tailored-resume item from the dashboard and access its linked application details, edit flow, and status actions.
 
@@ -72,11 +72,11 @@
 | PIPE-01 | Phase 1 | Pending |
 | PIPE-02 | Phase 1 | Pending |
 | PIPE-03 | Phase 1 | Pending |
-| PIPE-04 | Phase 2 | Pending |
-| PIPE-05 | Phase 2 | Pending |
+| PIPE-04 | Phase 2 | Complete |
+| PIPE-05 | Phase 2 | Complete |
 | APPL-05 | Phase 2 | Pending |
 | APPL-06 | Phase 2 | Pending |
-| DASH-01 | Phase 2 | Pending |
+| DASH-01 | Phase 2 | Complete |
 | DASH-02 | Phase 2 | Pending |
 | DASH-03 | Phase 2 | Pending |
 | SET-01 | Phase 3 | Pending |
