@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Applications Backend Foundation** - Add persistence, schemas, config handling, and API endpoints for application tracking. (completed 2026-03-23)
 - [x] **Phase 2: Dashboard Resume-Linked Experience** - Deliver application-aware dashboard entries, filtering, details, edit flow, and status actions through the existing tailored-resume experience. (completed 2026-03-23)
 - [x] **Phase 3: Workflow Integrations** - Connect the tracker to Settings pipeline management and the post-tailoring creation flow. (completed 2026-03-23)
-- [ ] **Phase 4: Quality and Release Hardening** - Complete i18n, tests, validation coverage, and end-to-end polish for the MVP.
+- [x] **Phase 4: Quality and Release Hardening** - Complete i18n, tests, validation coverage, and end-to-end polish for the MVP. (completed 2026-03-23)
 
 ## Phase Details
 
@@ -76,8 +76,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: Add i18n coverage and frontend/backend automated tests for the tracker flows.
-- [ ] 04-02: Run validation, fix gaps, and finalize MVP release polish.
+- [x] 04-01: Add i18n coverage and frontend/backend automated tests for the tracker flows.
+- [x] 04-02: Run validation, fix gaps, and finalize MVP release polish.
 
 ## Progress
 
@@ -89,4 +89,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Applications Backend Foundation | 3/3 | Complete   | 2026-03-23 |
 | 2. Dashboard Resume-Linked Experience | 3/3 | Complete   | 2026-03-23 |
 | 3. Workflow Integrations | 2/2 | Complete | 2026-03-23 |
-| 4. Quality and Release Hardening | 0/2 | Not started | - |
+| 4. Quality and Release Hardening | 2/2 | Complete | 2026-03-23 |
