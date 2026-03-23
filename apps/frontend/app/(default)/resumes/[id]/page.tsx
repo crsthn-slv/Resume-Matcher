@@ -209,7 +209,10 @@ export default function ResumeViewerPage() {
         if (configResult.status === 'fulfilled') {
           setApplicationStatuses(configResult.value.statuses);
         } else {
-          console.error('Failed to load application statuses for resume detail:', configResult.reason);
+          console.error(
+            'Failed to load application statuses for resume detail:',
+            configResult.reason
+          );
           setApplicationStatuses([]);
         }
 
@@ -481,7 +484,7 @@ export default function ResumeViewerPage() {
 
   const applicationPanel = (
     <aside className="border-2 border-black bg-white shadow-[8px_8px_0px_0px_#000000] p-5 md:p-6 xl:sticky xl:top-8 no-print">
-        <div className="flex flex-col gap-4 border-b border-black pb-5">
+      <div className="flex flex-col gap-4 border-b border-black pb-5">
         <div className="space-y-2">
           <p className="font-mono text-xs uppercase tracking-wider text-gray-600">
             {t('resumeViewer.application.panelLabel')}
@@ -546,7 +549,9 @@ export default function ResumeViewerPage() {
               <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
                 {t('resumeViewer.application.linkedResumeLabel')}
               </p>
-              <p className="mt-2 font-mono text-sm">{linkedApplication.resume_title ?? resumeTitle ?? resumeId ?? t('common.unknown')}</p>
+              <p className="mt-2 font-mono text-sm">
+                {linkedApplication.resume_title ?? resumeTitle ?? resumeId ?? t('common.unknown')}
+              </p>
             </div>
             <div className="border border-black p-4">
               <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
