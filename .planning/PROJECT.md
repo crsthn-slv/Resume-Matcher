@@ -19,7 +19,7 @@ The product must let the user track real job applications alongside the tailored
 
 ### Active
 
-- [ ] User can manage application records from the existing dashboard through tailored-resume entries.
+- [x] User can manage application records from the existing dashboard through tailored-resume entries.
 - [ ] User can change application status through a configurable pipeline and review status history.
 - [ ] User can create an application directly after tailoring with linked `resume_id` and `job_id`.
 - [ ] User can manage the global application pipeline in Settings.

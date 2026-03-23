@@ -13,7 +13,7 @@ This roadmap adds a brownfield application tracker to Resume Matcher in a way th
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Applications Backend Foundation** - Add persistence, schemas, config handling, and API endpoints for application tracking. (completed 2026-03-23)
-- [ ] **Phase 2: Dashboard Resume-Linked Experience** - Deliver application-aware dashboard entries, filtering, details, edit flow, and status actions through the existing tailored-resume experience.
+- [x] **Phase 2: Dashboard Resume-Linked Experience** - Deliver application-aware dashboard entries, filtering, details, edit flow, and status actions through the existing tailored-resume experience. (completed 2026-03-23)
 - [ ] **Phase 3: Workflow Integrations** - Connect the tracker to Settings pipeline management and the post-tailoring creation flow.
 - [ ] **Phase 4: Quality and Release Hardening** - Complete i18n, tests, validation coverage, and end-to-end polish for the MVP.
 
@@ -49,7 +49,7 @@ Plans:
 Plans:
 - [x] 02-01: Add frontend application API client, types, and dashboard data-loading state for resume-linked application metadata.
 - [x] 02-02: Integrate application status, search, and filtering into the existing dashboard tailored-resume entries.
-- [ ] 02-03: Build linked application details/edit/status flows from the tailored-resume experience.
+- [x] 02-03: Build linked application details/edit/status flows from the tailored-resume experience.
 
 ### Phase 3: Workflow Integrations
 **Goal**: Make the tracker part of the broader Resume Matcher workflow through Settings pipeline management and post-tailoring entry points.
@@ -87,6 +87,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Applications Backend Foundation | 3/3 | Complete   | 2026-03-23 |
-| 2. Dashboard Resume-Linked Experience | 2/3 | In progress  | 2026-03-23 |
+| 2. Dashboard Resume-Linked Experience | 3/3 | Complete   | 2026-03-23 |
 | 3. Workflow Integrations | 0/2 | Not started | - |
 | 4. Quality and Release Hardening | 0/2 | Not started | - |
