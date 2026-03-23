@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Dropdown } from '@/components/ui/dropdown';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,11 +28,13 @@ import {
 } from '@/lib/api/resume';
 import {
   createApplication,
+  fetchApplicationConfig,
   fetchApplications,
   resolveApplicationByResumeId,
   type ApplicationListItem,
   type ApplicationRecord,
   updateApplication,
+  updateApplicationStatus,
 } from '@/lib/api/applications';
 import { useStatusCache } from '@/lib/context/status-cache';
 import {
@@ -125,6 +128,7 @@ export default function ResumeViewerPage() {
   const [linkedApplication, setLinkedApplication] = useState<ApplicationListItem | null>(null);
   const [linkedJobDescription, setLinkedJobDescription] = useState<string | null>(null);
   const [linkedJobId, setLinkedJobId] = useState<string | null>(null);
+  const [applicationStatuses, setApplicationStatuses] = useState<string[]>([]);
   const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
   const [applicationDialogMode, setApplicationDialogMode] =
     useState<ApplicationDialogMode>('create');
@@ -133,6 +137,9 @@ export default function ResumeViewerPage() {
   const [applicationFormError, setApplicationFormError] = useState<string | null>(null);
   const [applicationActionError, setApplicationActionError] = useState<string | null>(null);
   const [isSavingApplication, setIsSavingApplication] = useState(false);
+  const [statusSelection, setStatusSelection] = useState('');
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [applicationStatusError, setApplicationStatusError] = useState<string | null>(null);
 
   const resumeId = params?.id as string;
 
@@ -144,6 +151,17 @@ export default function ResumeViewerPage() {
   const orderedStatusHistory = useMemo(() => {
     return linkedApplication?.status_history ? [...linkedApplication.status_history].reverse() : [];
   }, [linkedApplication]);
+  const statusOptions = useMemo(() => {
+    if (applicationStatuses.length) {
+      return applicationStatuses;
+    }
+
+    if (linkedApplication) {
+      return [linkedApplication.status];
+    }
+
+    return [];
+  }, [applicationStatuses, linkedApplication]);
 
   useEffect(() => {
     if (!resumeId) return;
@@ -153,11 +171,13 @@ export default function ResumeViewerPage() {
       try {
         setLoading(true);
         setError(null);
-        const [resumeResult, applicationResult, jobDescriptionResult] = await Promise.allSettled([
-          fetchResume(resumeId),
-          fetchApplications(),
-          fetchJobDescription(resumeId),
-        ]);
+        const [resumeResult, applicationResult, configResult, jobDescriptionResult] =
+          await Promise.allSettled([
+            fetchResume(resumeId),
+            fetchApplications(),
+            fetchApplicationConfig(),
+            fetchJobDescription(resumeId),
+          ]);
 
         if (cancelled) {
           return;
@@ -177,11 +197,20 @@ export default function ResumeViewerPage() {
           setLinkedApplication(application);
           setApplicationForm(toApplicationFormState(application));
           setLinkedJobId(application?.job_id ?? null);
+          setStatusSelection(application?.status ?? '');
         } else {
           console.error('Failed to load applications for resume detail:', applicationResult.reason);
           setLinkedApplication(null);
           setApplicationForm(EMPTY_APPLICATION_FORM);
           setLinkedJobId(null);
+          setStatusSelection('');
+        }
+
+        if (configResult.status === 'fulfilled') {
+          setApplicationStatuses(configResult.value.statuses);
+        } else {
+          console.error('Failed to load application statuses for resume detail:', configResult.reason);
+          setApplicationStatuses([]);
         }
 
         if (jobDescriptionResult.status === 'fulfilled') {
@@ -346,12 +375,42 @@ export default function ResumeViewerPage() {
           Boolean(linkedJobDescription)
         )
       );
+      setStatusSelection(savedApplication.status);
       setApplicationDialogOpen(false);
     } catch (err) {
       console.error('Failed to save application from resume viewer:', err);
       setApplicationActionError(t('resumeViewer.application.saveFailed'));
     } finally {
       setIsSavingApplication(false);
+    }
+  };
+
+  const handleStatusChange = async () => {
+    if (!linkedApplication || !statusSelection || statusSelection === linkedApplication.status) {
+      return;
+    }
+
+    setIsUpdatingStatus(true);
+    setApplicationStatusError(null);
+
+    try {
+      const updatedApplication = await updateApplicationStatus(linkedApplication.application_id, {
+        status: statusSelection,
+      });
+
+      setLinkedApplication(
+        toApplicationListItem(
+          updatedApplication,
+          linkedApplication.resume_title ?? resumeTitle,
+          Boolean(linkedJobDescription)
+        )
+      );
+      setStatusSelection(updatedApplication.status);
+    } catch (err) {
+      console.error('Failed to update application status from resume viewer:', err);
+      setApplicationStatusError(t('resumeViewer.application.statusUpdateFailed'));
+    } finally {
+      setIsUpdatingStatus(false);
     }
   };
 
@@ -514,6 +573,48 @@ export default function ResumeViewerPage() {
               <p className="mt-2 whitespace-pre-wrap font-sans text-sm leading-6 text-black">
                 {linkedApplication.notes ?? t('common.unknown')}
               </p>
+            </div>
+          </div>
+
+          <div className="border-2 border-black bg-[#F8F8F2] p-4">
+            <p className="font-mono text-xs uppercase tracking-wider text-gray-600">
+              {t('resumeViewer.application.statusControlLabel')}
+            </p>
+            <div className="mt-3 space-y-3">
+              <Dropdown
+                label={t('resumeViewer.application.statusSelectLabel')}
+                description={t('resumeViewer.application.statusControlDescription')}
+                options={statusOptions.map((status) => ({
+                  id: status,
+                  label: status,
+                }))}
+                value={statusSelection || linkedApplication.status}
+                onChange={(value) => {
+                  setStatusSelection(value);
+                  setApplicationStatusError(null);
+                }}
+                disabled={!statusOptions.length || isUpdatingStatus}
+              />
+              <Button
+                type="button"
+                onClick={handleStatusChange}
+                disabled={
+                  !linkedApplication ||
+                  !statusSelection ||
+                  statusSelection === linkedApplication.status ||
+                  isUpdatingStatus
+                }
+                className="w-full"
+              >
+                {isUpdatingStatus
+                  ? t('common.saving')
+                  : t('resumeViewer.application.updateStatusAction')}
+              </Button>
+              {applicationStatusError && (
+                <p className="font-mono text-xs uppercase tracking-wider text-red-700">
+                  {applicationStatusError}
+                </p>
+              )}
             </div>
           </div>
 
