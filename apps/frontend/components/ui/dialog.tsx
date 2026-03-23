@@ -158,9 +158,8 @@ const DialogContent: React.FC<DialogContentProps> = ({ children, className }) =>
   );
 };
 
-interface DialogHeaderProps {
+interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  className?: string;
 }
 
 const DialogHeader: React.FC<DialogHeaderProps> = ({ className, children, ...props }) => (
@@ -169,9 +168,8 @@ const DialogHeader: React.FC<DialogHeaderProps> = ({ className, children, ...pro
   </div>
 );
 
-interface DialogFooterProps {
+interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  className?: string;
 }
 
 const DialogFooter: React.FC<DialogFooterProps> = ({ className, children, ...props }) => (
@@ -183,9 +181,8 @@ const DialogFooter: React.FC<DialogFooterProps> = ({ className, children, ...pro
   </div>
 );
 
-interface DialogTitleProps {
+interface DialogTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
   children: React.ReactNode;
-  className?: string;
 }
 
 const DialogTitle: React.FC<DialogTitleProps> = ({ className, children, ...props }) => (
@@ -197,9 +194,8 @@ const DialogTitle: React.FC<DialogTitleProps> = ({ className, children, ...props
   </h2>
 );
 
-interface DialogDescriptionProps {
+interface DialogDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
   children: React.ReactNode;
-  className?: string;
 }
 
 const DialogDescription: React.FC<DialogDescriptionProps> = ({ className, children, ...props }) => (
