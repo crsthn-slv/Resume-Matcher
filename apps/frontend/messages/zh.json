@@ -533,6 +533,16 @@
     "configureApiKey": "配置 API 密钥",
     "configureApiKeyFirst": "请先配置 API 密钥",
     "charactersCount": "{count} 字符",
+    "applicationPrefill": {
+      "title": "候选申请预填",
+      "description": "这里填写的内容会在定制完成后带入关联申请表单，避免重复输入。",
+      "companyLabel": "公司",
+      "companyPlaceholder": "例如：Acme",
+      "roleLabel": "职位",
+      "rolePlaceholder": "例如：Senior Frontend Engineer",
+      "jobUrlLabel": "岗位链接",
+      "jobUrlPlaceholder": "https://company.com/jobs/123"
+    },
     "matchScore": "匹配度",
     "suggestions": "建议",
     "keywords": "关键词建议",
@@ -689,6 +699,24 @@
       "title": "提示词设置",
       "description": "选择用于简历定制的默认提示词。",
       "defaultLabel": "默认定制提示词"
+    },
+    "applicationPipeline": {
+      "title": "申请流程配置",
+      "description": "管理申请追踪器可用的状态。",
+      "hint": "保存前可以添加、删除并重新排序状态。",
+      "newStatusLabel": "新状态",
+      "newStatusPlaceholder": "例如：Interview",
+      "addAction": "添加状态",
+      "saveAction": "保存流程",
+      "moveUpAction": "上移",
+      "moveDownAction": "下移",
+      "removeAction": "移除",
+      "positionLabel": "位置 {position}",
+      "emptyState": "请至少添加一个状态来创建流程。",
+      "emptyError": "至少需要一个申请状态。",
+      "duplicateStatusError": "该状态已存在于流程中。",
+      "affectedApplicationsTitle": "以下申请仍在使用已移除的状态",
+      "affectedApplicationMeta": "状态: {status} / ID: {id}"
     },
     "footer": {
       "status": {

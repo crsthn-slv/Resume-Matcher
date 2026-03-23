@@ -533,6 +533,16 @@
     "configureApiKey": "API キーを設定",
     "configureApiKeyFirst": "先に API キーを設定してください",
     "charactersCount": "{count} 文字",
+    "applicationPrefill": {
+      "title": "応募情報の事前入力",
+      "description": "ここで入力した内容は、カスタマイズ後に表示される連携応募フォームへ引き継がれます。",
+      "companyLabel": "会社名",
+      "companyPlaceholder": "例: Acme",
+      "roleLabel": "職種",
+      "rolePlaceholder": "例: Senior Frontend Engineer",
+      "jobUrlLabel": "求人URL",
+      "jobUrlPlaceholder": "https://company.com/jobs/123"
+    },
     "matchScore": "マッチスコア",
     "suggestions": "提案",
     "keywords": "含めるべきキーワード",
@@ -689,6 +699,24 @@
       "title": "プロンプト設定",
       "description": "履歴書カスタマイズで使う既定のプロンプトを選択します。",
       "defaultLabel": "既定のカスタマイズプロンプト"
+    },
+    "applicationPipeline": {
+      "title": "応募パイプライン",
+      "description": "応募トラッカーで使えるステータスを管理します。",
+      "hint": "保存する前にステータスの追加、削除、並べ替えを行えます。",
+      "newStatusLabel": "新しいステータス",
+      "newStatusPlaceholder": "例: Interview",
+      "addAction": "ステータスを追加",
+      "saveAction": "パイプラインを保存",
+      "moveUpAction": "上へ移動",
+      "moveDownAction": "下へ移動",
+      "removeAction": "削除",
+      "positionLabel": "{position} 番目",
+      "emptyState": "パイプラインを作成するには少なくとも1つのステータスが必要です。",
+      "emptyError": "少なくとも1つの応募ステータスが必要です。",
+      "duplicateStatusError": "このステータスはすでにパイプラインに存在します。",
+      "affectedApplicationsTitle": "削除したステータスをまだ使っている応募があります",
+      "affectedApplicationMeta": "STATUS: {status} / ID: {id}"
     },
     "footer": {
       "status": {

@@ -9,6 +9,10 @@ import {
   testLlmConnection,
   fetchFeatureConfig,
   updateFeatureConfig,
+  fetchApplicationsConfig,
+  updateApplicationsConfig,
+  ApplicationsConfigError,
+  type AffectedApplication,
   fetchPromptConfig,
   updatePromptConfig,
   clearAllApiKeys,
@@ -35,6 +39,8 @@ import {
   Activity,
   Loader2,
   ArrowLeft,
+  ArrowUp,
+  ArrowDown,
   CheckCircle2,
   XCircle,
   RefreshCw,
@@ -120,6 +126,11 @@ export default function SettingsPage() {
   const [enableCoverLetter, setEnableCoverLetter] = useState(false);
   const [enableOutreach, setEnableOutreach] = useState(false);
   const [featureConfigLoading, setFeatureConfigLoading] = useState(false);
+  const [applicationStatuses, setApplicationStatuses] = useState<string[]>([]);
+  const [applicationStatusDraft, setApplicationStatusDraft] = useState('');
+  const [applicationsConfigSaving, setApplicationsConfigSaving] = useState(false);
+  const [applicationsConfigError, setApplicationsConfigError] = useState<string | null>(null);
+  const [affectedApplications, setAffectedApplications] = useState<AffectedApplication[]>([]);
   const [promptConfigLoading, setPromptConfigLoading] = useState(false);
   const [promptOptions, setPromptOptions] = useState<PromptOption[]>([]);
   const [defaultPromptId, setDefaultPromptId] = useState('keywords');
@@ -235,9 +246,10 @@ export default function SettingsPage() {
 
     async function loadConfig() {
       try {
-        const [llmConfig, featureConfig, promptConfig] = await Promise.all([
+        const [llmConfig, featureConfig, applicationsConfig, promptConfig] = await Promise.all([
           fetchLlmConfig().catch(() => null),
           fetchFeatureConfig().catch(() => null),
+          fetchApplicationsConfig().catch(() => null),
           fetchPromptConfig().catch(() => null),
         ]);
 
@@ -263,6 +275,10 @@ export default function SettingsPage() {
         if (featureConfig) {
           setEnableCoverLetter(featureConfig.enable_cover_letter);
           setEnableOutreach(featureConfig.enable_outreach_message);
+        }
+
+        if (applicationsConfig) {
+          setApplicationStatuses(applicationsConfig.statuses || []);
         }
 
         if (promptConfig) {
@@ -412,6 +428,80 @@ export default function SettingsPage() {
       setError((err as Error).message || t('settings.errors.unableToSaveConfiguration'));
     } finally {
       setPromptConfigLoading(false);
+    }
+  };
+
+  const handleAddApplicationStatus = () => {
+    const trimmed = applicationStatusDraft.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    const alreadyExists = applicationStatuses.some(
+      (statusValue) => statusValue.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (alreadyExists) {
+      setApplicationsConfigError(t('settings.applicationPipeline.duplicateStatusError'));
+      return;
+    }
+
+    setApplicationStatuses((current) => [...current, trimmed]);
+    setApplicationStatusDraft('');
+    setApplicationsConfigError(null);
+    setAffectedApplications([]);
+  };
+
+  const handleRemoveApplicationStatus = (index: number) => {
+    setApplicationStatuses((current) =>
+      current.filter((_, currentIndex) => currentIndex !== index)
+    );
+    setApplicationsConfigError(null);
+    setAffectedApplications([]);
+  };
+
+  const handleMoveApplicationStatus = (index: number, direction: -1 | 1) => {
+    setApplicationStatuses((current) => {
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= current.length) {
+        return current;
+      }
+
+      const next = [...current];
+      const [moved] = next.splice(index, 1);
+      next.splice(nextIndex, 0, moved);
+      return next;
+    });
+    setApplicationsConfigError(null);
+    setAffectedApplications([]);
+  };
+
+  const handleSaveApplicationStatuses = async () => {
+    const sanitizedStatuses = applicationStatuses.map((value) => value.trim()).filter(Boolean);
+
+    if (!sanitizedStatuses.length) {
+      setApplicationsConfigError(t('settings.applicationPipeline.emptyError'));
+      return;
+    }
+
+    setApplicationsConfigSaving(true);
+    setApplicationsConfigError(null);
+    setAffectedApplications([]);
+
+    try {
+      const updated = await updateApplicationsConfig({ statuses: sanitizedStatuses });
+      setApplicationStatuses(updated.statuses);
+    } catch (err) {
+      console.error('Failed to update application pipeline config', err);
+      if (err instanceof ApplicationsConfigError) {
+        setApplicationsConfigError(err.message);
+        setAffectedApplications(err.affectedApplications);
+      } else {
+        setApplicationsConfigError(
+          (err as Error).message || t('settings.errors.unableToSaveConfiguration')
+        );
+      }
+    } finally {
+      setApplicationsConfigSaving(false);
     }
   };
 
@@ -947,6 +1037,161 @@ export default function SettingsPage() {
                   description={t('settings.promptSettings.description')}
                   disabled={promptConfigLoading}
                 />
+              </div>
+            </div>
+          </section>
+
+          <section className="space-y-6">
+            <div className="flex items-center gap-2 border-b border-black/10 pb-2">
+              <Briefcase className="w-4 h-4" />
+              <h2 className="font-mono text-sm font-bold uppercase tracking-wider">
+                {t('settings.applicationPipeline.title')}
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600">
+                  {t('settings.applicationPipeline.description')}
+                </p>
+                <p className="mt-2 font-mono text-xs uppercase tracking-wider text-gray-500">
+                  {t('settings.applicationPipeline.hint')}
+                </p>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                <div className="grid gap-2">
+                  <Label htmlFor="application-status-draft">
+                    {t('settings.applicationPipeline.newStatusLabel')}
+                  </Label>
+                  <Input
+                    id="application-status-draft"
+                    value={applicationStatusDraft}
+                    onChange={(event) => setApplicationStatusDraft(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        handleAddApplicationStatus();
+                      }
+                    }}
+                    placeholder={t('settings.applicationPipeline.newStatusPlaceholder')}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddApplicationStatus}
+                  disabled={!applicationStatusDraft.trim()}
+                >
+                  {t('settings.applicationPipeline.addAction')}
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {applicationStatuses.length ? (
+                  applicationStatuses.map((statusValue, index) => (
+                    <div
+                      key={`${statusValue}-${index}`}
+                      className="flex flex-col gap-3 border border-black bg-white p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] md:flex-row md:items-center md:justify-between"
+                    >
+                      <div>
+                        <p className="font-serif text-lg font-bold">{statusValue}</p>
+                        <p className="font-mono text-[11px] uppercase tracking-wider text-gray-500">
+                          {t('settings.applicationPipeline.positionLabel', {
+                            position: index + 1,
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleMoveApplicationStatus(index, -1)}
+                          disabled={index === 0}
+                        >
+                          <ArrowUp className="w-4 h-4" />
+                          {t('settings.applicationPipeline.moveUpAction')}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleMoveApplicationStatus(index, 1)}
+                          disabled={index === applicationStatuses.length - 1}
+                        >
+                          <ArrowDown className="w-4 h-4" />
+                          {t('settings.applicationPipeline.moveDownAction')}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemoveApplicationStatus(index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          {t('settings.applicationPipeline.removeAction')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="border border-dashed border-black bg-[#F8F8F2] p-4 font-mono text-xs uppercase tracking-wider text-gray-600">
+                    {t('settings.applicationPipeline.emptyState')}
+                  </div>
+                )}
+              </div>
+
+              {applicationsConfigError && (
+                <div className="border border-red-300 bg-red-50 p-4">
+                  <p className="font-mono text-xs uppercase tracking-wider text-red-700">
+                    {applicationsConfigError}
+                  </p>
+
+                  {affectedApplications.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <p className="font-mono text-[11px] uppercase tracking-wider text-red-700">
+                        {t('settings.applicationPipeline.affectedApplicationsTitle')}
+                      </p>
+                      {affectedApplications.map((application) => (
+                        <div
+                          key={application.application_id}
+                          className="border border-red-300 bg-white p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.08)]"
+                        >
+                          <p className="font-serif text-base font-bold text-black">
+                            {application.company} / {application.role}
+                          </p>
+                          <p className="mt-1 font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                            {t('settings.applicationPipeline.affectedApplicationMeta', {
+                              status: application.status,
+                              id: application.application_id,
+                            })}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  onClick={handleSaveApplicationStatuses}
+                  disabled={applicationsConfigSaving}
+                >
+                  {applicationsConfigSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t('common.saving')}
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      {t('settings.applicationPipeline.saveAction')}
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </section>
