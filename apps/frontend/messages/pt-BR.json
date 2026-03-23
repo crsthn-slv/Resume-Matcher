@@ -728,7 +728,44 @@
       "failedToLoad": "Falha ao carregar dados do currículo.",
       "failedToDelete": "Falha ao excluir currículo. Por favor, tente novamente."
     },
-    "titlePlaceholder": "Digite o título do currículo..."
+    "titlePlaceholder": "Digite o título do currículo...",
+    "application": {
+      "panelLabel": "Candidatura vinculada",
+      "panelTitle": "Detalhes da candidatura",
+      "emptyTitle": "Ainda sem candidatura",
+      "panelDescription": "Gerencie a candidatura ligada a este currículo personalizado.",
+      "emptyDescription": "Crie a candidatura sem sair da página do currículo.",
+      "emptyHeading": "Sem candidatura vinculada",
+      "emptyBody": "Crie o registro da candidatura a partir deste currículo personalizado.",
+      "createAction": "Criar candidatura",
+      "editAction": "Editar candidatura",
+      "createDialogTitle": "Criar candidatura",
+      "editDialogTitle": "Editar candidatura",
+      "createDialogDescription": "Adicione empresa, cargo, URL da vaga e observações para este currículo.",
+      "editDialogDescription": "Atualize os metadados da candidatura. As mudanças de status ficam separadas.",
+      "companyLabel": "Empresa",
+      "roleLabel": "Cargo",
+      "jobUrlLabel": "URL da vaga",
+      "notesLabel": "Observações",
+      "linkedResumeLabel": "Currículo vinculado",
+      "statusLabel": "Status",
+      "statusControlLabel": "Mudança de status",
+      "statusSelectLabel": "Escolher status",
+      "statusControlDescription": "As mudanças de status usam o endpoint dedicado da candidatura.",
+      "updateStatusAction": "Atualizar status",
+      "jobDescriptionLabel": "Descrição da vaga vinculada",
+      "historyLabel": "Histórico de status",
+      "historyEmpty": "Ainda não há mudanças de status.",
+      "formHint": "As atualizações de status são tratadas separadamente dos metadados.",
+      "formValidation": "Empresa e cargo são obrigatórios.",
+      "saveFailed": "Não foi possível salvar a candidatura. Tente novamente.",
+      "statusUpdateFailed": "Não foi possível atualizar o status. Tente novamente.",
+      "sources": {
+        "manual_create": "Criação manual",
+        "tailor_create": "Criação ao personalizar",
+        "status_change": "Mudança de status"
+      }
+    }
   },
   "preview": {
     "margins": "Margens",

@@ -12,6 +12,7 @@ import {
   deleteResume,
   retryProcessing,
   renameResume,
+  fetchJobDescription,
 } from '@/lib/api/resume';
 import {
   fetchApplications,
@@ -19,7 +20,18 @@ import {
   type ApplicationListItem,
 } from '@/lib/api/applications';
 import { useStatusCache } from '@/lib/context/status-cache';
-import { ArrowLeft, Edit, Download, Loader2, AlertCircle, Sparkles, Pencil } from 'lucide-react';
+import {
+  ArrowLeft,
+  Edit,
+  Download,
+  Loader2,
+  AlertCircle,
+  Sparkles,
+  Pencil,
+  ExternalLink,
+  Link2,
+  History,
+} from 'lucide-react';
 import { EnrichmentModal } from '@/components/enrichment/enrichment-modal';
 import { useTranslations } from '@/lib/i18n';
 import { withLocalizedDefaultSections } from '@/lib/utils/section-helpers';
@@ -27,6 +39,13 @@ import { useLanguage } from '@/lib/context/language-context';
 import { downloadBlobAsFile, openUrlInNewTab, sanitizeFilename } from '@/lib/utils/download';
 
 type ProcessingStatus = 'pending' | 'processing' | 'ready' | 'failed';
+
+function formatDateTime(value: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
+}
 
 export default function ResumeViewerPage() {
   const { t } = useTranslations();
@@ -49,6 +68,7 @@ export default function ResumeViewerPage() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editingTitleValue, setEditingTitleValue] = useState('');
   const [linkedApplication, setLinkedApplication] = useState<ApplicationListItem | null>(null);
+  const [linkedJobDescription, setLinkedJobDescription] = useState<string | null>(null);
 
   const resumeId = params?.id as string;
 
@@ -57,33 +77,49 @@ export default function ResumeViewerPage() {
     return withLocalizedDefaultSections(resumeData, t);
   }, [resumeData, t]);
 
+  const orderedStatusHistory = useMemo(() => {
+    return linkedApplication?.status_history ? [...linkedApplication.status_history].reverse() : [];
+  }, [linkedApplication]);
+
   useEffect(() => {
     if (!resumeId) return;
+    let cancelled = false;
 
     const loadResume = async () => {
       try {
         setLoading(true);
         setError(null);
-        const [resumeResult, applicationResult] = await Promise.allSettled([
+        const [resumeResult, applicationResult, jobDescriptionResult] = await Promise.allSettled([
           fetchResume(resumeId),
           fetchApplications(),
+          fetchJobDescription(resumeId),
         ]);
+
+        if (cancelled) {
+          return;
+        }
 
         if (resumeResult.status === 'rejected') {
           throw resumeResult.reason;
         }
 
         const data = resumeResult.value;
+        const application =
+          applicationResult.status === 'fulfilled'
+            ? resolveApplicationByResumeId(applicationResult.value.items, resumeId)
+            : null;
+
         if (applicationResult.status === 'fulfilled') {
-          setLinkedApplication(
-            resolveApplicationByResumeId(applicationResult.value.items, resumeId)
-          );
+          setLinkedApplication(application);
         } else {
-          console.error(
-            'Failed to load applications for resume detail:',
-            applicationResult.reason
-          );
+          console.error('Failed to load applications for resume detail:', applicationResult.reason);
           setLinkedApplication(null);
+        }
+
+        if (jobDescriptionResult.status === 'fulfilled') {
+          setLinkedJobDescription(jobDescriptionResult.value.content ?? null);
+        } else {
+          setLinkedJobDescription(null);
         }
 
         // Get processing status
@@ -122,6 +158,9 @@ export default function ResumeViewerPage() {
 
     loadResume();
     setIsMasterResume(localStorage.getItem('master_resume_id') === resumeId);
+    return () => {
+      cancelled = true;
+    };
   }, [resumeId, t]);
 
   const handleRetryProcessing = async () => {
@@ -234,6 +273,161 @@ export default function ResumeViewerPage() {
   const handleDownloadSuccessConfirm = () => {
     setShowDownloadSuccessDialog(false);
   };
+
+  const applicationPanel = (
+    <aside className="border-2 border-black bg-white shadow-[8px_8px_0px_0px_#000000] p-5 md:p-6 xl:sticky xl:top-8 no-print">
+        <div className="flex flex-col gap-4 border-b border-black pb-5">
+        <div className="space-y-2">
+          <p className="font-mono text-xs uppercase tracking-wider text-gray-600">
+            {t('resumeViewer.application.panelLabel')}
+          </p>
+          <h3 className="font-serif text-2xl font-bold text-black">
+            {linkedApplication
+              ? t('resumeViewer.application.panelTitle')
+              : t('resumeViewer.application.emptyTitle')}
+          </h3>
+          <p className="font-mono text-xs leading-5 text-gray-600">
+            {linkedApplication
+              ? t('resumeViewer.application.panelDescription')
+              : t('resumeViewer.application.emptyDescription')}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {linkedApplication ? (
+            <Button variant="outline" size="sm" type="button">
+              <Edit className="w-4 h-4" />
+              {t('resumeViewer.application.editAction')}
+            </Button>
+          ) : (
+            <Button type="button">
+              {t('resumeViewer.application.createAction')}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {linkedApplication ? (
+        <div className="mt-5 space-y-5">
+          <div className="grid gap-3">
+            <div className="border border-black p-4">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                {t('resumeViewer.application.companyLabel')}
+              </p>
+              <p className="mt-2 font-serif text-lg font-bold">{linkedApplication.company}</p>
+            </div>
+            <div className="border border-black p-4">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                {t('resumeViewer.application.roleLabel')}
+              </p>
+              <p className="mt-2 font-serif text-lg font-bold">{linkedApplication.role}</p>
+            </div>
+            <div className="border border-black p-4">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                {t('resumeViewer.application.statusLabel')}
+              </p>
+              <div className="mt-2 inline-flex items-center border border-black bg-[#F0F0E8] px-3 py-1 font-mono text-xs uppercase tracking-wider">
+                {linkedApplication.status}
+              </div>
+            </div>
+            <div className="border border-black p-4">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                {t('resumeViewer.application.linkedResumeLabel')}
+              </p>
+              <p className="mt-2 font-mono text-sm">{linkedApplication.resume_title ?? resumeTitle ?? resumeId ?? t('common.unknown')}</p>
+            </div>
+            <div className="border border-black p-4">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                {t('resumeViewer.application.jobUrlLabel')}
+              </p>
+              {linkedApplication.job_url ? (
+                <a
+                  href={linkedApplication.job_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-2 font-mono text-sm text-blue-700 underline underline-offset-4"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  {linkedApplication.job_url}
+                </a>
+              ) : (
+                <p className="mt-2 font-mono text-sm text-gray-600">{t('common.unknown')}</p>
+              )}
+            </div>
+            <div className="border border-black p-4">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                {t('resumeViewer.application.notesLabel')}
+              </p>
+              <p className="mt-2 whitespace-pre-wrap font-sans text-sm leading-6 text-black">
+                {linkedApplication.notes ?? t('common.unknown')}
+              </p>
+            </div>
+          </div>
+
+          {linkedJobDescription && (
+            <div className="border border-black p-4">
+              <div className="flex items-center gap-2">
+                <Link2 className="w-4 h-4" />
+                <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                  {t('resumeViewer.application.jobDescriptionLabel')}
+                </p>
+              </div>
+              <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6 text-black">
+                {linkedJobDescription}
+              </pre>
+            </div>
+          )}
+
+          <div className="border border-black p-4">
+            <div className="flex items-center gap-2">
+              <History className="w-4 h-4" />
+              <p className="font-mono text-[11px] uppercase tracking-wider text-gray-600">
+                {t('resumeViewer.application.historyLabel')}
+              </p>
+            </div>
+
+            {orderedStatusHistory.length ? (
+              <ul className="mt-3 space-y-3">
+                {orderedStatusHistory.map((entry, index) => (
+                  <li
+                    key={`${entry.changed_at}-${index}`}
+                    className="border border-black bg-white p-3"
+                  >
+                    <p className="font-mono text-xs uppercase tracking-wider text-gray-600">
+                      {formatDateTime(entry.changed_at, uiLanguage)}
+                    </p>
+                    <p className="mt-2 font-serif text-base font-bold">
+                      {entry.from_status ? `${entry.from_status} → ` : ''}
+                      {entry.to_status}
+                    </p>
+                    <p className="mt-1 font-mono text-xs uppercase tracking-wider text-gray-600">
+                      {t(`resumeViewer.application.sources.${entry.source}`)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 font-mono text-xs uppercase tracking-wider text-gray-600">
+                {t('resumeViewer.application.historyEmpty')}
+              </p>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="mt-5 border-2 border-dashed border-black bg-[#F8F8F2] p-5">
+          <p className="font-serif text-lg font-bold">
+            {t('resumeViewer.application.emptyHeading')}
+          </p>
+          <p className="mt-2 font-mono text-xs leading-5 uppercase tracking-wider text-gray-600">
+            {t('resumeViewer.application.emptyBody')}
+          </p>
+          <Button className="mt-4 w-full" type="button">
+            {t('resumeViewer.application.createAction')}
+          </Button>
+        </div>
+      )}
+    </aside>
+  );
 
   if (loading) {
     return (
@@ -371,34 +565,38 @@ export default function ResumeViewerPage() {
           </div>
         )}
 
-        {/* Resume Viewer */}
-        <div className="flex justify-center pb-4">
-          <div className="resume-print w-full max-w-[250mm] shadow-[8px_8px_0px_0px_#000000] border-2 border-black bg-white">
-            <Resume
-              resumeData={localizedResumeData || resumeData}
-              additionalSectionLabels={{
-                technicalSkills: t('resume.additionalLabels.technicalSkills'),
-                languages: t('resume.additionalLabels.languages'),
-                certifications: t('resume.additionalLabels.certifications'),
-                awards: t('resume.additionalLabels.awards'),
-              }}
-              sectionHeadings={{
-                summary: t('resume.sections.summary'),
-                experience: t('resume.sections.experience'),
-                education: t('resume.sections.education'),
-                projects: t('resume.sections.projects'),
-                certifications: t('resume.sections.certifications'),
-                skills: t('resume.sections.skillsOnly'),
-                languages: t('resume.sections.languages'),
-                awards: t('resume.sections.awards'),
-                links: t('resume.sections.links'),
-              }}
-              fallbackLabels={{ name: t('resume.defaults.name') }}
-            />
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+          {/* Resume Viewer */}
+          <div className="flex justify-center pb-4">
+            <div className="resume-print w-full max-w-[250mm] shadow-[8px_8px_0px_0px_#000000] border-2 border-black bg-white">
+              <Resume
+                resumeData={localizedResumeData || resumeData}
+                additionalSectionLabels={{
+                  technicalSkills: t('resume.additionalLabels.technicalSkills'),
+                  languages: t('resume.additionalLabels.languages'),
+                  certifications: t('resume.additionalLabels.certifications'),
+                  awards: t('resume.additionalLabels.awards'),
+                }}
+                sectionHeadings={{
+                  summary: t('resume.sections.summary'),
+                  experience: t('resume.sections.experience'),
+                  education: t('resume.sections.education'),
+                  projects: t('resume.sections.projects'),
+                  certifications: t('resume.sections.certifications'),
+                  skills: t('resume.sections.skillsOnly'),
+                  languages: t('resume.sections.languages'),
+                  awards: t('resume.sections.awards'),
+                  links: t('resume.sections.links'),
+                }}
+                fallbackLabels={{ name: t('resume.defaults.name') }}
+              />
+            </div>
           </div>
+
+          {applicationPanel}
         </div>
 
-        <div className="flex justify-end pt-4 no-print">
+        <div className="flex justify-end pt-6 no-print">
           <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
             {isMasterResume
               ? t('confirmations.deleteMasterResumeTitle')
@@ -406,7 +604,6 @@ export default function ResumeViewerPage() {
           </Button>
         </div>
       </div>
-
       <ConfirmDialog
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
