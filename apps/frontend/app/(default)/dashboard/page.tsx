@@ -45,6 +45,8 @@ export default function DashboardPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [tailoredResumes, setTailoredResumes] = useState<ResumeListItem[]>([]);
   const [applicationRows, setApplicationRows] = useState<ApplicationListItem[]>([]);
+  const [applicationSearchQuery] = useState('');
+  const [applicationStatusFilters] = useState<string[]>([]);
   const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -68,6 +70,26 @@ export default function DashboardPage() {
     ...resume,
     application: applicationsByResumeId.get(resume.resume_id) ?? null,
   }));
+  const visibleTailoredResumeRows = tailoredResumeRows.filter((resume) => {
+    const application = resume.application;
+    const searchableText = [
+      application?.company,
+      application?.role,
+      resume.title,
+      resume.filename,
+      resume.jobSnippet,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    const query = applicationSearchQuery.trim().toLowerCase();
+    const matchesQuery = query ? searchableText.includes(query) : true;
+    const matchesStatus =
+      applicationStatusFilters.length === 0 ||
+      (application ? applicationStatusFilters.includes(application.status) : false);
+
+    return matchesQuery && matchesStatus;
+  });
 
   // Check if LLM is configured (API key is set)
   const isLlmConfigured = !statusLoading && systemStatus?.llm_configured;
@@ -323,7 +345,7 @@ export default function DashboardPage() {
     return Math.abs(hash);
   };
 
-  const totalCards = 1 + tailoredResumeRows.length + 1;
+  const totalCards = 1 + visibleTailoredResumeRows.length + 1;
   const fillerCount = Math.max(0, (5 - (totalCards % 5)) % 5);
   const extraFillerCount = 5;
   // Use Tailwind classes for fillers now that we have them in config or use specific hex if needed
@@ -488,7 +510,7 @@ export default function DashboardPage() {
         )}
 
         {/* 2. Tailored Resumes */}
-        {tailoredResumeRows.map((resume) => {
+        {visibleTailoredResumeRows.map((resume) => {
           const title =
             resume.title || resume.jobSnippet || resume.filename || t('dashboard.tailoredResume');
           const color = cardPalette[hashTitle(title) % cardPalette.length];
