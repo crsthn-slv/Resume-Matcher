@@ -9,6 +9,8 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from app.config import settings
 from app.llm import check_llm_health, LLMConfig, resolve_api_key
 from app.schemas import (
+    ApplicationConfig,
+    ApplicationsConfigResponse,
     LLMConfigRequest,
     LLMConfigResponse,
     FeatureConfigRequest,
@@ -23,6 +25,7 @@ from app.schemas import (
     ApiKeysUpdateRequest,
     ApiKeysUpdateResponse,
     ResetDatabaseRequest,
+    default_application_statuses,
 )
 from app.prompts import DEFAULT_IMPROVE_PROMPT_ID, IMPROVE_PROMPT_OPTIONS
 from app.config import (
@@ -35,6 +38,7 @@ from app.config_cache import invalidate_config_cache
 from app.database import db
 
 router = APIRouter(prefix="/config", tags=["Configuration"])
+APPLICATION_STATUSES_KEY = "application_statuses"
 
 
 def _get_config_path() -> Path:
@@ -56,6 +60,15 @@ def _save_config(config: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(config, indent=2))
     invalidate_config_cache()
+
+
+def get_application_statuses() -> list[str]:
+    """Return the configured application pipeline statuses."""
+    stored = _load_config()
+    configured = stored.get(APPLICATION_STATUSES_KEY)
+    if isinstance(configured, list) and configured:
+        return [str(status) for status in configured]
+    return default_application_statuses()
 
 
 def _mask_api_key(key: str) -> str:
@@ -198,6 +211,48 @@ async def get_feature_config() -> FeatureConfigResponse:
         enable_cover_letter=stored.get("enable_cover_letter", False),
         enable_outreach_message=stored.get("enable_outreach_message", False),
     )
+
+
+@router.get("/applications", response_model=ApplicationsConfigResponse)
+async def get_applications_config() -> ApplicationsConfigResponse:
+    """Get application pipeline configuration."""
+    return ApplicationsConfigResponse(statuses=get_application_statuses())
+
+
+@router.put("/applications", response_model=ApplicationsConfigResponse)
+async def update_applications_config(
+    request: ApplicationConfig,
+) -> ApplicationsConfigResponse:
+    """Update application pipeline configuration."""
+    statuses = [status.strip() for status in request.statuses if status.strip()]
+    if not statuses:
+        raise HTTPException(status_code=400, detail="At least one application status is required.")
+
+    current_statuses = get_application_statuses()
+    removed_statuses = set(current_statuses) - set(statuses)
+    affected_applications = [
+        {
+            "application_id": application["application_id"],
+            "company": application["company"],
+            "role": application["role"],
+            "status": application["status"],
+        }
+        for application in db.list_applications()
+        if application.get("status") in removed_statuses
+    ]
+    if affected_applications:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Cannot remove application statuses that are still in use.",
+                "affected_applications": affected_applications,
+            },
+        )
+
+    stored = _load_config()
+    stored[APPLICATION_STATUSES_KEY] = list(statuses)
+    _save_config(stored)
+    return ApplicationsConfigResponse(statuses=list(statuses))
 
 
 @router.put("/features", response_model=FeatureConfigResponse)
