@@ -2,7 +2,7 @@
 
 ## Overview
 
-This roadmap adds a brownfield application tracker to Resume Matcher in a way that respects the existing architecture and user flows. Work starts by establishing the backend data model and API contract, then layers on the dashboard table workflow, then connects the tracker into Settings and post-tailoring creation, and finally hardens the feature with localization, tests, and release polish.
+This roadmap adds a brownfield application tracker to Resume Matcher in a way that respects the existing architecture and user flows. Work starts by establishing the backend data model and API contract, then layers application tracking into the existing dashboard and tailored-resume flow, then connects the tracker into Settings and post-tailoring creation, and finally hardens the feature with localization, tests, and release polish.
 
 ## Phases
 
@@ -13,7 +13,7 @@ This roadmap adds a brownfield application tracker to Resume Matcher in a way th
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Applications Backend Foundation** - Add persistence, schemas, config handling, and API endpoints for application tracking. (completed 2026-03-23)
-- [ ] **Phase 2: Dashboard Tracker Experience** - Deliver the applications table, filtering, details, edit flow, and status actions in the dashboard.
+- [ ] **Phase 2: Dashboard Resume-Linked Experience** - Deliver application-aware dashboard entries, filtering, details, edit flow, and status actions through the existing tailored-resume experience.
 - [ ] **Phase 3: Workflow Integrations** - Connect the tracker to Settings pipeline management and the post-tailoring creation flow.
 - [ ] **Phase 4: Quality and Release Hardening** - Complete i18n, tests, validation coverage, and end-to-end polish for the MVP.
 
@@ -35,21 +35,21 @@ Plans:
 - [x] 01-02: Implement applications CRUD and status-history API endpoints.
 - [x] 01-03: Implement application pipeline config endpoints, defaults, and backend tests.
 
-### Phase 2: Dashboard Tracker Experience
-**Goal**: Add a usable tracker interface to the dashboard that makes application records searchable, filterable, and editable.
+### Phase 2: Dashboard Resume-Linked Experience
+**Goal**: Add a usable tracker interface to the existing dashboard by embedding application records into the tailored-resume experience instead of introducing a standalone applications table.
 **Depends on**: Phase 1
 **Requirements**: [PIPE-04, PIPE-05, APPL-05, APPL-06, DASH-01, DASH-02, DASH-03]
 **Success Criteria** (what must be TRUE):
-  1. User can see a dedicated applications section on the dashboard while the existing resumes grid remains available.
-  2. User can search by company or role, filter by one or more statuses, and see results ordered by most recent activity.
-  3. User can open create, edit, and details dialogs that reflect the stored application data and reverse-ordered history.
-  4. Inline status changes call the status endpoint instead of metadata patching.
+  1. User keeps using the current dashboard and can recognize application state directly from tailored-resume entries.
+  2. User can search by company or role, filter by one or more statuses, and see resume-linked application results ordered by most recent activity.
+  3. User can open a tailored-resume item and access linked application details, edit controls, and reverse-ordered history.
+  4. Status changes still call the dedicated status endpoint instead of metadata patching.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Add frontend application API client, types, and dashboard data-loading state.
-- [ ] 02-02: Build the applications table, filters, and quick actions in the dashboard.
-- [ ] 02-03: Build create/edit/details dialogs and wire inline status changes correctly.
+- [ ] 02-01: Add frontend application API client, types, and dashboard data-loading state for resume-linked application metadata.
+- [ ] 02-02: Integrate application status, search, and filtering into the existing dashboard tailored-resume entries.
+- [ ] 02-03: Build linked application details/edit/status flows from the tailored-resume experience.
 
 ### Phase 3: Workflow Integrations
 **Goal**: Make the tracker part of the broader Resume Matcher workflow through Settings pipeline management and post-tailoring entry points.
@@ -87,6 +87,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Applications Backend Foundation | 3/3 | Complete   | 2026-03-23 |
-| 2. Dashboard Tracker Experience | 0/3 | Not started | - |
+| 2. Dashboard Resume-Linked Experience | 0/3 | Not started | - |
 | 3. Workflow Integrations | 0/2 | Not started | - |
 | 4. Quality and Release Hardening | 0/2 | Not started | - |
