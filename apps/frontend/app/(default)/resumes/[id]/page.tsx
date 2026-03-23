@@ -4,6 +4,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import Resume, { ResumeData } from '@/components/dashboard/resume-component';
 import {
   fetchResume,
@@ -15,9 +26,12 @@ import {
   fetchJobDescription,
 } from '@/lib/api/resume';
 import {
+  createApplication,
   fetchApplications,
   resolveApplicationByResumeId,
   type ApplicationListItem,
+  type ApplicationRecord,
+  updateApplication,
 } from '@/lib/api/applications';
 import { useStatusCache } from '@/lib/context/status-cache';
 import {
@@ -31,6 +45,7 @@ import {
   ExternalLink,
   Link2,
   History,
+  BadgeCheck,
 } from 'lucide-react';
 import { EnrichmentModal } from '@/components/enrichment/enrichment-modal';
 import { useTranslations } from '@/lib/i18n';
@@ -39,6 +54,46 @@ import { useLanguage } from '@/lib/context/language-context';
 import { downloadBlobAsFile, openUrlInNewTab, sanitizeFilename } from '@/lib/utils/download';
 
 type ProcessingStatus = 'pending' | 'processing' | 'ready' | 'failed';
+type ApplicationDialogMode = 'create' | 'edit';
+
+interface ApplicationFormState {
+  company: string;
+  role: string;
+  jobUrl: string;
+  notes: string;
+}
+
+const EMPTY_APPLICATION_FORM: ApplicationFormState = {
+  company: '',
+  role: '',
+  jobUrl: '',
+  notes: '',
+};
+
+function toApplicationFormState(application: ApplicationListItem | null): ApplicationFormState {
+  if (!application) {
+    return EMPTY_APPLICATION_FORM;
+  }
+
+  return {
+    company: application.company,
+    role: application.role,
+    jobUrl: application.job_url ?? '',
+    notes: application.notes ?? '',
+  };
+}
+
+function toApplicationListItem(
+  application: ApplicationRecord,
+  resumeTitle: string | null,
+  hasJobDescription: boolean
+): ApplicationListItem {
+  return {
+    ...application,
+    resume_title: resumeTitle,
+    has_job_description: hasJobDescription,
+  };
+}
 
 function formatDateTime(value: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
@@ -69,6 +124,15 @@ export default function ResumeViewerPage() {
   const [editingTitleValue, setEditingTitleValue] = useState('');
   const [linkedApplication, setLinkedApplication] = useState<ApplicationListItem | null>(null);
   const [linkedJobDescription, setLinkedJobDescription] = useState<string | null>(null);
+  const [linkedJobId, setLinkedJobId] = useState<string | null>(null);
+  const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
+  const [applicationDialogMode, setApplicationDialogMode] =
+    useState<ApplicationDialogMode>('create');
+  const [applicationForm, setApplicationForm] =
+    useState<ApplicationFormState>(EMPTY_APPLICATION_FORM);
+  const [applicationFormError, setApplicationFormError] = useState<string | null>(null);
+  const [applicationActionError, setApplicationActionError] = useState<string | null>(null);
+  const [isSavingApplication, setIsSavingApplication] = useState(false);
 
   const resumeId = params?.id as string;
 
@@ -111,14 +175,22 @@ export default function ResumeViewerPage() {
 
         if (applicationResult.status === 'fulfilled') {
           setLinkedApplication(application);
+          setApplicationForm(toApplicationFormState(application));
+          setLinkedJobId(application?.job_id ?? null);
         } else {
           console.error('Failed to load applications for resume detail:', applicationResult.reason);
           setLinkedApplication(null);
+          setApplicationForm(EMPTY_APPLICATION_FORM);
+          setLinkedJobId(null);
         }
 
         if (jobDescriptionResult.status === 'fulfilled') {
+          setLinkedJobId(jobDescriptionResult.value.job_id ?? application?.job_id ?? null);
           setLinkedJobDescription(jobDescriptionResult.value.content ?? null);
         } else {
+          if (!application?.job_id) {
+            setLinkedJobId(null);
+          }
           setLinkedJobDescription(null);
         }
 
@@ -209,6 +281,80 @@ export default function ResumeViewerPage() {
     }
   };
 
+  const openCreateApplicationDialog = () => {
+    setApplicationDialogMode('create');
+    setApplicationForm(EMPTY_APPLICATION_FORM);
+    setApplicationFormError(null);
+    setApplicationActionError(null);
+    setApplicationDialogOpen(true);
+  };
+
+  const openEditApplicationDialog = () => {
+    if (!linkedApplication) {
+      return;
+    }
+
+    setApplicationDialogMode('edit');
+    setApplicationForm(toApplicationFormState(linkedApplication));
+    setApplicationFormError(null);
+    setApplicationActionError(null);
+    setApplicationDialogOpen(true);
+  };
+
+  const closeApplicationDialog = () => {
+    setApplicationDialogOpen(false);
+    setApplicationFormError(null);
+    setApplicationActionError(null);
+  };
+
+  const handleApplicationSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const company = applicationForm.company.trim();
+    const role = applicationForm.role.trim();
+    const jobUrl = applicationForm.jobUrl.trim();
+    const notes = applicationForm.notes.trim();
+
+    if (!company || !role) {
+      setApplicationFormError(t('resumeViewer.application.formValidation'));
+      return;
+    }
+
+    setIsSavingApplication(true);
+    setApplicationFormError(null);
+    setApplicationActionError(null);
+
+    try {
+      const payload = {
+        company,
+        role,
+        job_url: jobUrl || null,
+        notes: notes || null,
+        resume_id: resumeId,
+        job_id: linkedJobId,
+      };
+
+      const savedApplication =
+        applicationDialogMode === 'create'
+          ? await createApplication(payload)
+          : await updateApplication(linkedApplication?.application_id ?? '', payload);
+
+      setLinkedApplication(
+        toApplicationListItem(
+          savedApplication,
+          linkedApplication?.resume_title ?? resumeTitle,
+          Boolean(linkedJobDescription)
+        )
+      );
+      setApplicationDialogOpen(false);
+    } catch (err) {
+      console.error('Failed to save application from resume viewer:', err);
+      setApplicationActionError(t('resumeViewer.application.saveFailed'));
+    } finally {
+      setIsSavingApplication(false);
+    }
+  };
+
   // Reload resume data after enrichment
   const reloadResumeData = async () => {
     try {
@@ -295,17 +441,24 @@ export default function ResumeViewerPage() {
 
         <div className="flex flex-wrap gap-2">
           {linkedApplication ? (
-            <Button variant="outline" size="sm" type="button">
+            <Button variant="outline" size="sm" type="button" onClick={openEditApplicationDialog}>
               <Edit className="w-4 h-4" />
               {t('resumeViewer.application.editAction')}
             </Button>
           ) : (
-            <Button type="button">
+            <Button type="button" onClick={openCreateApplicationDialog}>
+              <BadgeCheck className="w-4 h-4" />
               {t('resumeViewer.application.createAction')}
             </Button>
           )}
         </div>
       </div>
+
+      {applicationActionError && (
+        <div className="mt-4 border border-red-600 bg-red-50 p-3 font-mono text-xs text-red-700">
+          {applicationActionError}
+        </div>
+      )}
 
       {linkedApplication ? (
         <div className="mt-5 space-y-5">
@@ -421,12 +574,133 @@ export default function ResumeViewerPage() {
           <p className="mt-2 font-mono text-xs leading-5 uppercase tracking-wider text-gray-600">
             {t('resumeViewer.application.emptyBody')}
           </p>
-          <Button className="mt-4 w-full" type="button">
+          <Button className="mt-4 w-full" type="button" onClick={openCreateApplicationDialog}>
+            <BadgeCheck className="w-4 h-4" />
             {t('resumeViewer.application.createAction')}
           </Button>
         </div>
       )}
     </aside>
+  );
+
+  const applicationDialog = (
+    <Dialog
+      open={applicationDialogOpen}
+      onOpenChange={(open) => {
+        if (open) {
+          setApplicationDialogOpen(true);
+        } else {
+          closeApplicationDialog();
+        }
+      }}
+    >
+      <DialogContent className="max-w-2xl p-0">
+        <form onSubmit={handleApplicationSubmit} className="p-6">
+          <DialogHeader className="pr-10 text-left">
+            <p className="font-mono text-xs uppercase tracking-wider text-gray-600">
+              {t('resumeViewer.application.panelLabel')}
+            </p>
+            <DialogTitle className="font-serif text-2xl font-bold uppercase tracking-tight">
+              {applicationDialogMode === 'create'
+                ? t('resumeViewer.application.createDialogTitle')
+                : t('resumeViewer.application.editDialogTitle')}
+            </DialogTitle>
+            <DialogDescription className="font-mono text-xs uppercase tracking-wider text-gray-600">
+              {applicationDialogMode === 'create'
+                ? t('resumeViewer.application.createDialogDescription')
+                : t('resumeViewer.application.editDialogDescription')}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-6 grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="application-company">
+                {t('resumeViewer.application.companyLabel')}
+              </Label>
+              <Input
+                id="application-company"
+                value={applicationForm.company}
+                onChange={(event) =>
+                  setApplicationForm((current) => ({ ...current, company: event.target.value }))
+                }
+                required
+                autoComplete="organization"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="application-role">{t('resumeViewer.application.roleLabel')}</Label>
+              <Input
+                id="application-role"
+                value={applicationForm.role}
+                onChange={(event) =>
+                  setApplicationForm((current) => ({ ...current, role: event.target.value }))
+                }
+                required
+                autoComplete="organization-title"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="application-job-url">
+                {t('resumeViewer.application.jobUrlLabel')}
+              </Label>
+              <Input
+                id="application-job-url"
+                value={applicationForm.jobUrl}
+                onChange={(event) =>
+                  setApplicationForm((current) => ({ ...current, jobUrl: event.target.value }))
+                }
+                placeholder="https://..."
+                autoComplete="url"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="application-notes">{t('resumeViewer.application.notesLabel')}</Label>
+              <Textarea
+                id="application-notes"
+                value={applicationForm.notes}
+                onChange={(event) =>
+                  setApplicationForm((current) => ({ ...current, notes: event.target.value }))
+                }
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.stopPropagation();
+                  }
+                }}
+                rows={5}
+              />
+            </div>
+
+            {applicationFormError && (
+              <div className="border border-red-600 bg-red-50 p-3 font-mono text-xs text-red-700">
+                {applicationFormError}
+              </div>
+            )}
+
+            {applicationActionError && (
+              <div className="border border-red-600 bg-red-50 p-3 font-mono text-xs text-red-700">
+                {applicationActionError}
+              </div>
+            )}
+
+            <div className="border border-black bg-[#F8F8F2] p-3 font-mono text-xs uppercase tracking-wider text-gray-600">
+              {t('resumeViewer.application.formHint')}
+            </div>
+          </div>
+
+          <DialogFooter className="mt-6 border-t border-black bg-[#E5E5E0] p-4">
+            <Button type="button" variant="outline" onClick={closeApplicationDialog}>
+              {t('common.cancel')}
+            </Button>
+            <Button type="submit" disabled={isSavingApplication}>
+              {isSavingApplication ? t('common.saving') : t('common.save')}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 
   if (loading) {
@@ -604,6 +878,7 @@ export default function ResumeViewerPage() {
           </Button>
         </div>
       </div>
+      {applicationDialog}
       <ConfirmDialog
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
