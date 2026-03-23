@@ -41,8 +41,8 @@
 
 ### Quality
 
-- [ ] **QUAL-01**: User sees localized labels, dialogs, messages, empty states, and settings content for the application tracker in every supported language.
-- [ ] **QUAL-02**: User benefits from automated backend and frontend test coverage for manual creation, linked creation, filtering, status history, pipeline validation, and the post-tailoring flow.
+- [x] **QUAL-01**: User sees localized labels, dialogs, messages, empty states, and settings content for the application tracker in every supported language.
+- [x] **QUAL-02**: User benefits from automated backend and frontend test coverage for manual creation, linked creation, filtering, status history, pipeline validation, and the post-tailoring flow.
 
 ## v2 Requirements
 
@@ -84,8 +84,8 @@
 | SET-03 | Phase 3 | Complete |
 | TAIL-01 | Phase 3 | Complete |
 | TAIL-02 | Phase 3 | Complete |
-| QUAL-01 | Phase 4 | Pending |
-| QUAL-02 | Phase 4 | Pending |
+| QUAL-01 | Phase 4 | Complete |
+| QUAL-02 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 21 total

@@ -20,9 +20,9 @@ The product must let the user track real job applications alongside the tailored
 ### Active
 
 - [x] User can manage application records from the existing dashboard through tailored-resume entries.
-- [ ] User can change application status through a configurable pipeline and review status history.
-- [ ] User can create an application directly after tailoring with linked `resume_id` and `job_id`.
-- [ ] User can manage the global application pipeline in Settings.
+- [x] User can change application status through a configurable pipeline and review status history.
+- [x] User can create an application directly after tailoring with linked `resume_id` and `job_id`.
+- [x] User can manage the global application pipeline in Settings.
 
 ### Out of Scope
 
@@ -54,8 +54,8 @@ Existing frontend patterns should be preserved: Swiss-style UI, shared component
 |----------|-----------|---------|
 | Introduce `application` as a first-class model separate from `job` | Tracking user progress through a hiring pipeline is not the same concern as storing a job description | Phase 1 |
 | Use the existing dashboard and tailored-resume flow as the tracker surface | The user wants application tracking to live inside the current resume workflow instead of a new standalone table | 2026-03-23 |
-| Centralize pipeline validation in backend config endpoints | Status integrity must not depend on frontend behavior | — Pending |
-| Offer application creation after tailoring, but keep `company` and `role` manual in MVP | Preserves useful linking without adding brittle parsing logic too early | — Pending |
+| Centralize pipeline validation in backend config endpoints | Status integrity must not depend on frontend behavior | 2026-03-23 |
+| Offer application creation after tailoring through the resume viewer handoff with editable prefill | Preserves a resume-centric workflow while reducing re-entry for `company`, `role`, and `job_url` | 2026-03-23 |
 
 ## Evolution
 
