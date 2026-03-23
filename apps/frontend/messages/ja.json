@@ -728,7 +728,44 @@
       "failedToLoad": "履歴書データの読み込みに失敗しました。",
       "failedToDelete": "履歴書の削除に失敗しました。もう一度お試しください。"
     },
-    "titlePlaceholder": "履歴書のタイトルを入力..."
+    "titlePlaceholder": "履歴書のタイトルを入力...",
+    "application": {
+      "panelLabel": "関連する申請",
+      "panelTitle": "申請の詳細",
+      "emptyTitle": "まだ申請なし",
+      "panelDescription": "このカスタマイズ済み履歴書に紐づく申請を管理します。",
+      "emptyDescription": "履歴書ページを離れずに申請を作成できます。",
+      "emptyHeading": "関連する申請なし",
+      "emptyBody": "このカスタマイズ済み履歴書から申請レコードを作成します。",
+      "createAction": "申請を作成",
+      "editAction": "申請を編集",
+      "createDialogTitle": "申請を作成",
+      "editDialogTitle": "申請を編集",
+      "createDialogDescription": "この履歴書の会社名、職種、求人URL、メモを追加します。",
+      "editDialogDescription": "申請のメタデータを更新します。ステータス変更は別で行います。",
+      "companyLabel": "会社",
+      "roleLabel": "職種",
+      "jobUrlLabel": "求人URL",
+      "notesLabel": "メモ",
+      "linkedResumeLabel": "関連履歴書",
+      "statusLabel": "ステータス",
+      "statusControlLabel": "ステータス変更",
+      "statusSelectLabel": "ステータスを選択",
+      "statusControlDescription": "ステータス変更は専用の申請エンドポイントを使用します。",
+      "updateStatusAction": "ステータスを更新",
+      "jobDescriptionLabel": "関連求人票",
+      "historyLabel": "ステータス履歴",
+      "historyEmpty": "まだステータス変更はありません。",
+      "formHint": "ステータス更新はメタデータとは別に処理されます。",
+      "formValidation": "会社名と職種は必須です。",
+      "saveFailed": "申請を保存できませんでした。もう一度お試しください。",
+      "statusUpdateFailed": "ステータスを更新できませんでした。もう一度お試しください。",
+      "sources": {
+        "manual_create": "手動作成",
+        "tailor_create": "カスタマイズ作成",
+        "status_change": "ステータス変更"
+      }
+    }
   },
   "preview": {
     "margins": "余白",

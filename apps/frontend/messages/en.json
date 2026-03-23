@@ -728,7 +728,44 @@
       "failedToLoad": "Failed to load resume data.",
       "failedToDelete": "Failed to delete resume. Please try again."
     },
-    "titlePlaceholder": "Enter resume title..."
+    "titlePlaceholder": "Enter resume title...",
+    "application": {
+      "panelLabel": "Linked application",
+      "panelTitle": "Application details",
+      "emptyTitle": "No application yet",
+      "panelDescription": "Manage the application tied to this tailored resume.",
+      "emptyDescription": "Create the application record without leaving the resume page.",
+      "emptyHeading": "No linked application",
+      "emptyBody": "Create the application record from this tailored resume.",
+      "createAction": "Create application",
+      "editAction": "Edit application",
+      "createDialogTitle": "Create application",
+      "editDialogTitle": "Edit application",
+      "createDialogDescription": "Add company, role, job URL, and notes for this resume.",
+      "editDialogDescription": "Update application metadata. Status changes stay separate.",
+      "companyLabel": "Company",
+      "roleLabel": "Role",
+      "jobUrlLabel": "Job URL",
+      "notesLabel": "Notes",
+      "linkedResumeLabel": "Linked resume",
+      "statusLabel": "Status",
+      "statusControlLabel": "Status change",
+      "statusSelectLabel": "Choose status",
+      "statusControlDescription": "Status changes use the dedicated application endpoint.",
+      "updateStatusAction": "Update status",
+      "jobDescriptionLabel": "Linked job description",
+      "historyLabel": "Status history",
+      "historyEmpty": "No status changes yet.",
+      "formHint": "Status updates are handled separately from metadata.",
+      "formValidation": "Company and role are required.",
+      "saveFailed": "Unable to save the application. Please try again.",
+      "statusUpdateFailed": "Unable to update application status. Please try again.",
+      "sources": {
+        "manual_create": "Manual create",
+        "tailor_create": "Tailor create",
+        "status_change": "Status change"
+      }
+    }
   },
   "preview": {
     "margins": "Margins",

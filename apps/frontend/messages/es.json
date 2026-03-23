@@ -728,7 +728,44 @@
       "failedToLoad": "No se pudieron cargar los datos del currículum.",
       "failedToDelete": "No se pudo eliminar el currículum. Inténtalo de nuevo."
     },
-    "titlePlaceholder": "Ingrese el título del currículum..."
+    "titlePlaceholder": "Ingrese el título del currículum...",
+    "application": {
+      "panelLabel": "Solicitud vinculada",
+      "panelTitle": "Detalles de la solicitud",
+      "emptyTitle": "Sin solicitud aún",
+      "panelDescription": "Gestiona la solicitud vinculada a este currículum adaptado.",
+      "emptyDescription": "Crea la solicitud sin salir de la página del currículum.",
+      "emptyHeading": "Sin solicitud vinculada",
+      "emptyBody": "Crea el registro de la solicitud desde este currículum adaptado.",
+      "createAction": "Crear solicitud",
+      "editAction": "Editar solicitud",
+      "createDialogTitle": "Crear solicitud",
+      "editDialogTitle": "Editar solicitud",
+      "createDialogDescription": "Añade empresa, puesto, URL de la oferta y notas para este currículum.",
+      "editDialogDescription": "Actualiza los metadatos de la solicitud. Los cambios de estado van aparte.",
+      "companyLabel": "Empresa",
+      "roleLabel": "Puesto",
+      "jobUrlLabel": "URL de la oferta",
+      "notesLabel": "Notas",
+      "linkedResumeLabel": "Currículum vinculado",
+      "statusLabel": "Estado",
+      "statusControlLabel": "Cambio de estado",
+      "statusSelectLabel": "Elegir estado",
+      "statusControlDescription": "Los cambios de estado usan el endpoint dedicado de solicitudes.",
+      "updateStatusAction": "Actualizar estado",
+      "jobDescriptionLabel": "Descripción del puesto vinculada",
+      "historyLabel": "Historial de estados",
+      "historyEmpty": "Aún no hay cambios de estado.",
+      "formHint": "Las actualizaciones de estado se gestionan aparte de los metadatos.",
+      "formValidation": "La empresa y el puesto son obligatorios.",
+      "saveFailed": "No se pudo guardar la solicitud. Inténtalo de nuevo.",
+      "statusUpdateFailed": "No se pudo actualizar el estado. Inténtalo de nuevo.",
+      "sources": {
+        "manual_create": "Creación manual",
+        "tailor_create": "Creación desde personalización",
+        "status_change": "Cambio de estado"
+      }
+    }
   },
   "preview": {
     "margins": "Márgenes",
