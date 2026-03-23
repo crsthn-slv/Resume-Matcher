@@ -550,6 +550,112 @@ class ImproveResumeConfirmRequest(BaseModel):
     improvements: list[ImprovementSuggestion]
 
 
+DEFAULT_APPLICATION_STATUSES = (
+    "Wishlist",
+    "Applied",
+    "Interview",
+    "Offer",
+    "Rejected",
+    "Archived",
+)
+
+
+def default_application_statuses() -> list[str]:
+    """Return a defensive copy of the default application pipeline."""
+    return list(DEFAULT_APPLICATION_STATUSES)
+
+
+class ApplicationStatusHistoryEntry(BaseModel):
+    """Status transition entry for an application record."""
+
+    from_status: str | None = None
+    to_status: str
+    changed_at: str
+    source: Literal["manual_create", "tailor_create", "status_change"]
+
+
+class ApplicationRecord(BaseModel):
+    """Persisted application tracker record."""
+
+    application_id: str
+    company: str
+    role: str
+    status: str
+    job_url: str | None = None
+    notes: str | None = None
+    resume_id: str | None = None
+    job_id: str | None = None
+    status_history: list[ApplicationStatusHistoryEntry] = Field(default_factory=list)
+    created_at: str
+    updated_at: str
+
+
+class ApplicationListItem(BaseModel):
+    """Display-ready list item for application table views."""
+
+    application_id: str
+    company: str
+    role: str
+    status: str
+    job_url: str | None = None
+    notes: str | None = None
+    resume_id: str | None = None
+    resume_title: str | None = None
+    job_id: str | None = None
+    has_job_description: bool = False
+    status_history: list[ApplicationStatusHistoryEntry] = Field(default_factory=list)
+    created_at: str
+    updated_at: str
+
+
+class ApplicationConfig(BaseModel):
+    """Application pipeline configuration."""
+
+    statuses: list[str] = Field(default_factory=default_application_statuses)
+
+
+class CreateApplicationRequest(BaseModel):
+    """Request to create an application."""
+
+    company: str
+    role: str
+    status: str | None = None
+    job_url: str | None = None
+    notes: str | None = None
+    resume_id: str | None = None
+    job_id: str | None = None
+    job_description: str | None = None
+
+
+class UpdateApplicationRequest(BaseModel):
+    """Request to update application metadata."""
+
+    company: str | None = None
+    role: str | None = None
+    job_url: str | None = None
+    notes: str | None = None
+    resume_id: str | None = None
+    job_id: str | None = None
+
+
+class UpdateApplicationStatusRequest(BaseModel):
+    """Request to change an application's status."""
+
+    status: str
+
+
+class ApplicationListResponse(BaseModel):
+    """Response wrapper for listing applications."""
+
+    items: list[ApplicationListItem] = Field(default_factory=list)
+
+
+class ApplicationsConfigResponse(BaseModel):
+    """Response wrapper for application pipeline config."""
+
+    statuses: list[str] = Field(default_factory=default_application_statuses)
+
+
 # Config Models
 class LLMConfigRequest(BaseModel):
     """Request to update LLM configuration."""

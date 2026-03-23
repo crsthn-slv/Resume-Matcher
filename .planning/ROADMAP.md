@@ -12,7 +12,7 @@ This roadmap adds a brownfield application tracker to Resume Matcher in a way th
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Applications Backend Foundation** - Add persistence, schemas, config handling, and API endpoints for application tracking.
+- [x] **Phase 1: Applications Backend Foundation** - Add persistence, schemas, config handling, and API endpoints for application tracking. (completed 2026-03-23)
 - [ ] **Phase 2: Dashboard Tracker Experience** - Deliver the applications table, filtering, details, edit flow, and status actions in the dashboard.
 - [ ] **Phase 3: Workflow Integrations** - Connect the tracker to Settings pipeline management and the post-tailoring creation flow.
 - [ ] **Phase 4: Quality and Release Hardening** - Complete i18n, tests, validation coverage, and end-to-end polish for the MVP.
@@ -31,9 +31,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Add database table access, schemas, and shared application domain types.
-- [ ] 01-02: Implement applications CRUD and status-history API endpoints.
-- [ ] 01-03: Implement application pipeline config endpoints, defaults, and backend tests.
+- [x] 01-01: Add database table access, schemas, and shared application domain types.
+- [x] 01-02: Implement applications CRUD and status-history API endpoints.
+- [x] 01-03: Implement application pipeline config endpoints, defaults, and backend tests.
 
 ### Phase 2: Dashboard Tracker Experience
 **Goal**: Add a usable tracker interface to the dashboard that makes application records searchable, filterable, and editable.
@@ -86,7 +86,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Applications Backend Foundation | 0/3 | Not started | - |
+| 1. Applications Backend Foundation | 3/3 | Complete   | 2026-03-23 |
 | 2. Dashboard Tracker Experience | 0/3 | Not started | - |
 | 3. Workflow Integrations | 0/2 | Not started | - |
 | 4. Quality and Release Hardening | 0/2 | Not started | - |

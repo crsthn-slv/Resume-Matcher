@@ -47,6 +47,11 @@ class Database:
         """Improvement results table."""
         return self.db.table("improvements")
 
+    @property
+    def applications(self) -> Table:
+        """Applications tracking table."""
+        return self.db.table("applications")
+
     def close(self) -> None:
         """Close database connection."""
         if self._db is not None:
@@ -229,6 +234,74 @@ class Database:
             return None
         return self.get_job(job_id)
 
+    # Application operations
+    def create_application(
+        self,
+        company: str,
+        role: str,
+        status: str,
+        job_url: str | None = None,
+        notes: str | None = None,
+        resume_id: str | None = None,
+        job_id: str | None = None,
+        status_history: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """Create a new application entry."""
+        application_id = str(uuid4())
+        now = datetime.now(timezone.utc).isoformat()
+        doc: dict[str, Any] = {
+            "application_id": application_id,
+            "company": company,
+            "role": role,
+            "status": status,
+            "job_url": job_url,
+            "notes": notes,
+            "resume_id": resume_id,
+            "job_id": job_id,
+            "status_history": list(status_history or []),
+            "created_at": now,
+            "updated_at": now,
+        }
+        self.applications.insert(doc)
+        return doc
+
+    def get_application(self, application_id: str) -> dict[str, Any] | None:
+        """Get application by ID."""
+        Application = Query()
+        result = self.applications.search(Application.application_id == application_id)
+        return result[0] if result else None
+
+    def list_applications(self) -> list[dict[str, Any]]:
+        """List all applications."""
+        return list(self.applications.all())
+
+    def update_application(
+        self,
+        application_id: str,
+        updates: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Update application by ID.
+
+        Raises:
+            ValueError: If application not found.
+        """
+        Application = Query()
+        normalized_updates = dict(updates)
+        normalized_updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+        updated_count = self.applications.update(
+            normalized_updates,
+            Application.application_id == application_id,
+        )
+
+        if not updated_count:
+            raise ValueError(f"Application not found: {application_id}")
+
+        result = self.get_application(application_id)
+        if not result:
+            raise ValueError(f"Application disappeared after update: {application_id}")
+
+        return result
+
     # Improvement operations
     def create_improvement(
         self,
@@ -282,6 +355,7 @@ class Database:
         self.resumes.truncate()
         self.jobs.truncate()
         self.improvements.truncate()
+        self.applications.truncate()
 
         # Clear uploads directory
         uploads_dir = settings.data_dir / "uploads"
