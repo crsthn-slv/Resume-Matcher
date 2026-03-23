@@ -98,6 +98,15 @@
       "dropzoneSubtitle": "PDF, DOC, DOCX (Máx. 4MB)",
       "tryDifferentFile": "Probar otro archivo",
       "parsingFailedKeepOpen": "El análisis de IA falló. Prueba otro archivo o cierra este diálogo."
+    },
+    "applicationFilters": {
+      "searchLabel": "Buscar por empresa o rol",
+      "searchPlaceholder": "Empresa o rol",
+      "statusLabel": "Estado de la solicitud",
+      "allStatuses": "Todos los estados",
+      "clearFilters": "Limpiar filtros",
+      "activeSummary": "{count} currículums personalizados coinciden con los filtros actuales",
+      "emptyState": "Ningún currículum personalizado coincide con los filtros de solicitud actuales."
     }
   },
   "builder": {

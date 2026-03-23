@@ -98,6 +98,15 @@
       "dropzoneSubtitle": "PDF、DOC、DOCX（最大 4MB）",
       "tryDifferentFile": "別のファイルを試す",
       "parsingFailedKeepOpen": "AI 解析に失敗しました。別のファイルを試すか、このダイアログを閉じてください。"
+    },
+    "applicationFilters": {
+      "searchLabel": "会社名または役割で検索",
+      "searchPlaceholder": "会社名または役割",
+      "statusLabel": "応募ステータス",
+      "allStatuses": "すべてのステータス",
+      "clearFilters": "フィルターをクリア",
+      "activeSummary": "{count} 件のカスタマイズ履歴書が現在のフィルターに一致",
+      "emptyState": "現在の応募フィルターに一致するカスタマイズ履歴書はありません。"
     }
   },
   "builder": {
