@@ -26,9 +26,17 @@ import {
   fetchJobDescription,
   type ResumeListItem,
 } from '@/lib/api/resume';
+import {
+  fetchApplications,
+  indexApplicationsByResumeId,
+  type ApplicationListItem,
+} from '@/lib/api/applications';
 import { useStatusCache } from '@/lib/context/status-cache';
 
 type ProcessingStatus = 'pending' | 'processing' | 'ready' | 'failed' | 'loading';
+type TailoredResumeRow = ResumeListItem & {
+  application: ApplicationListItem | null;
+};
 
 export default function DashboardPage() {
   const { t, locale } = useTranslations();
@@ -36,6 +44,8 @@ export default function DashboardPage() {
   const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>('loading');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [tailoredResumes, setTailoredResumes] = useState<ResumeListItem[]>([]);
+  const [applicationRows, setApplicationRows] = useState<ApplicationListItem[]>([]);
+  const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const router = useRouter();
@@ -53,6 +63,11 @@ export default function DashboardPage() {
   const loadRequestIdRef = useRef(0);
   // Lightweight in-memory cache for job snippets to avoid N+1 refetches
   const jobSnippetCacheRef = useRef<Record<string, string>>({});
+  const applicationsByResumeId = indexApplicationsByResumeId(applicationRows);
+  const tailoredResumeRows: TailoredResumeRow[] = tailoredResumes.map((resume) => ({
+    ...resume,
+    application: applicationsByResumeId.get(resume.resume_id) ?? null,
+  }));
 
   // Check if LLM is configured (API key is set)
   const isLlmConfigured = !statusLoading && systemStatus?.llm_configured;
@@ -102,8 +117,27 @@ export default function DashboardPage() {
   }, [checkResumeStatus]);
 
   const loadTailoredResumes = useCallback(async () => {
+    const requestId = ++loadRequestIdRef.current;
+    setIsApplicationsLoading(true);
+
     try {
-      const data = await fetchResumeList(true);
+      const [resumeResult, applicationResult] = await Promise.allSettled([
+        fetchResumeList(true),
+        fetchApplications(),
+      ]);
+
+      if (resumeResult.status === 'rejected') {
+        throw resumeResult.reason;
+      }
+
+      const data = resumeResult.value;
+      if (applicationResult.status === 'fulfilled') {
+        setApplicationRows(applicationResult.value.items);
+      } else {
+        console.error('Failed to load applications:', applicationResult.reason);
+        setApplicationRows([]);
+      }
+
       const masterFromList = data.find((r) => r.is_master);
       const storedId = localStorage.getItem('master_resume_id');
       const resolvedMasterId = masterFromList?.resume_id || storedId;
@@ -126,8 +160,6 @@ export default function DashboardPage() {
       const tailoredWithParent = filtered.filter((r) => r.parent_id);
 
       // Guard against concurrent invocations overwriting each other
-      const requestId = ++loadRequestIdRef.current;
-
       // Fetch job description snippets for tailored resumes in parallel and attach to state
       // Use a small in-memory cache to avoid re-fetching the same snippet repeatedly.
       const jobSnippets: Record<string, string> = {};
@@ -159,6 +191,11 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error('Failed to load tailored resumes:', err);
+      setApplicationRows([]);
+    } finally {
+      if (requestId === loadRequestIdRef.current) {
+        setIsApplicationsLoading(false);
+      }
     }
   }, [checkResumeStatus]);
 
@@ -286,7 +323,7 @@ export default function DashboardPage() {
     return Math.abs(hash);
   };
 
-  const totalCards = 1 + tailoredResumes.length + 1;
+  const totalCards = 1 + tailoredResumeRows.length + 1;
   const fillerCount = Math.max(0, (5 - (totalCards % 5)) % 5);
   const extraFillerCount = 5;
   // Use Tailwind classes for fillers now that we have them in config or use specific hex if needed
@@ -451,7 +488,7 @@ export default function DashboardPage() {
         )}
 
         {/* 2. Tailored Resumes */}
-        {tailoredResumes.map((resume) => {
+        {tailoredResumeRows.map((resume) => {
           const title =
             resume.title || resume.jobSnippet || resume.filename || t('dashboard.tailoredResume');
           const color = cardPalette[hashTitle(title) % cardPalette.length];
@@ -461,6 +498,9 @@ export default function DashboardPage() {
               variant="interactive"
               className="aspect-square h-full bg-canvas"
               onClick={() => router.push(`/resumes/${resume.resume_id}`)}
+              data-application-status={resume.application?.status ?? ''}
+              data-linked-application={resume.application ? 'true' : 'false'}
+              data-applications-loading={isApplicationsLoading ? 'true' : 'false'}
             >
               <div className="flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-6">

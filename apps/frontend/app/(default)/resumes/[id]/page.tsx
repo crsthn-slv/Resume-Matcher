@@ -13,6 +13,11 @@ import {
   retryProcessing,
   renameResume,
 } from '@/lib/api/resume';
+import {
+  fetchApplications,
+  resolveApplicationByResumeId,
+  type ApplicationListItem,
+} from '@/lib/api/applications';
 import { useStatusCache } from '@/lib/context/status-cache';
 import { ArrowLeft, Edit, Download, Loader2, AlertCircle, Sparkles, Pencil } from 'lucide-react';
 import { EnrichmentModal } from '@/components/enrichment/enrichment-modal';
@@ -43,6 +48,7 @@ export default function ResumeViewerPage() {
   const [resumeTitle, setResumeTitle] = useState<string | null>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editingTitleValue, setEditingTitleValue] = useState('');
+  const [linkedApplication, setLinkedApplication] = useState<ApplicationListItem | null>(null);
 
   const resumeId = params?.id as string;
 
@@ -58,7 +64,27 @@ export default function ResumeViewerPage() {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchResume(resumeId);
+        const [resumeResult, applicationResult] = await Promise.allSettled([
+          fetchResume(resumeId),
+          fetchApplications(),
+        ]);
+
+        if (resumeResult.status === 'rejected') {
+          throw resumeResult.reason;
+        }
+
+        const data = resumeResult.value;
+        if (applicationResult.status === 'fulfilled') {
+          setLinkedApplication(
+            resolveApplicationByResumeId(applicationResult.value.items, resumeId)
+          );
+        } else {
+          console.error(
+            'Failed to load applications for resume detail:',
+            applicationResult.reason
+          );
+          setLinkedApplication(null);
+        }
 
         // Get processing status
         const status = (data.raw_resume?.processing_status || 'pending') as ProcessingStatus;
@@ -280,7 +306,10 @@ export default function ResumeViewerPage() {
 
   return (
     <div className="min-h-screen bg-[#F0F0E8] py-12 px-4 md:px-8 overflow-y-auto">
-      <div className="max-w-7xl mx-auto">
+      <div
+        className="max-w-7xl mx-auto"
+        data-linked-application-id={linkedApplication?.application_id ?? ''}
+      >
         {/* Header Actions */}
         <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
           <Button variant="outline" onClick={() => router.push('/dashboard')}>
