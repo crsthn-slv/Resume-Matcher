@@ -107,6 +107,9 @@
       "clearFilters": "Clear filters",
       "activeSummary": "{count} tailored resumes match the current filters",
       "emptyState": "No tailored resumes match the current application filters."
+    },
+    "inlineStatus": {
+      "saveFailed": "Couldn't update status. Try again."
     }
   },
   "builder": {
@@ -786,6 +789,7 @@
       "historyEmpty": "No status changes yet.",
       "formHint": "Status updates are handled separately from metadata.",
       "formValidation": "Company and role are required.",
+      "inlinePrefillIncomplete": "Add the missing company or role before saving this application.",
       "saveFailed": "Unable to save the application. Please try again.",
       "statusUpdateFailed": "Unable to update application status. Please try again.",
       "sources": {

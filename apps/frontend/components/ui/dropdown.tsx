@@ -18,6 +18,14 @@ interface DropdownProps {
   description?: string;
   disabled?: boolean;
   className?: string;
+  menuClassName?: string;
+  triggerClassName?: string;
+  renderTrigger?: (input: {
+    isOpen: boolean;
+    disabled: boolean;
+    selectedOption?: DropdownOption;
+    toggle: () => void;
+  }) => React.ReactNode;
 }
 
 export function Dropdown({
@@ -28,6 +36,9 @@ export function Dropdown({
   description,
   disabled = false,
   className = '',
+  menuClassName = '',
+  triggerClassName = '',
+  renderTrigger,
 }: DropdownProps) {
   const { t } = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
@@ -55,6 +66,12 @@ export function Dropdown({
     setIsOpen(false);
   };
 
+  const toggleDropdown = () => {
+    if (!disabled) {
+      setIsOpen((current) => !current);
+    }
+  };
+
   return (
     <div className={`space-y-1 ${className}`} ref={containerRef}>
       {label && (
@@ -66,43 +83,61 @@ export function Dropdown({
       {description && <p className="text-sm text-gray-600">{description}</p>}
 
       <div className="relative">
-        {/* Trigger Button */}
-        <button
-          ref={buttonRef}
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          disabled={disabled}
-          className="w-full flex items-center justify-between border border-black bg-white px-4 py-3 font-mono text-sm transition-all duration-150 ease-out shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-y-[2px] hover:translate-x-[2px] disabled:opacity-50 disabled:cursor-not-allowed rounded-none"
-        >
-          <div className="flex-1 text-left min-w-0">
-            {selectedOption ? (
-              <div>
-                <div className="font-bold text-black truncate">{selectedOption.label}</div>
-                {selectedOption.description && (
-                  <div className="text-xs text-gray-500 mt-1 font-normal truncate">
-                    {selectedOption.description}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-gray-400">{t('common.selectOption')}</span>
-            )}
-          </div>
-          <ChevronDown
-            className={`w-4 h-4 transition-transform duration-200 ml-2 shrink-0 ${
-              isOpen ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
+        {renderTrigger ? (
+          renderTrigger({
+            isOpen,
+            disabled,
+            selectedOption,
+            toggle: toggleDropdown,
+          })
+        ) : (
+          <button
+            ref={buttonRef}
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              toggleDropdown();
+            }}
+            disabled={disabled}
+            className={`w-full flex items-center justify-between border border-black bg-white px-4 py-3 font-mono text-sm transition-all duration-150 ease-out shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-y-[2px] hover:translate-x-[2px] disabled:opacity-50 disabled:cursor-not-allowed rounded-none ${triggerClassName}`}
+          >
+            <div className="flex-1 text-left min-w-0">
+              {selectedOption ? (
+                <div>
+                  <div className="font-bold text-black truncate">{selectedOption.label}</div>
+                  {selectedOption.description && (
+                    <div className="text-xs text-gray-500 mt-1 font-normal truncate">
+                      {selectedOption.description}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <span className="text-gray-400">{t('common.selectOption')}</span>
+              )}
+            </div>
+            <ChevronDown
+              className={`w-4 h-4 transition-transform duration-200 ml-2 shrink-0 ${
+                isOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+        )}
 
         {/* Dropdown Menu */}
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 z-50 border border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] rounded-none">
+          <div
+            className={`absolute top-full left-0 right-0 mt-1 z-50 border border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] rounded-none ${menuClassName}`}
+          >
             <div className="max-h-64 overflow-y-auto">
               {options.map((option, index) => (
                 <React.Fragment key={option.id}>
                   <button
-                    onClick={() => handleSelect(option.id)}
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleSelect(option.id);
+                    }}
+                    onMouseDown={(event) => event.stopPropagation()}
                     className={`w-full px-4 py-3 text-left font-mono transition-colors duration-150 border border-black ${
                       option.id === value
                         ? 'bg-green-700 text-white'
