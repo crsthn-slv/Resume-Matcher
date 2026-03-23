@@ -48,7 +48,7 @@ Plans:
 
 Plans:
 - [x] 02-01: Add frontend application API client, types, and dashboard data-loading state for resume-linked application metadata.
-- [ ] 02-02: Integrate application status, search, and filtering into the existing dashboard tailored-resume entries.
+- [x] 02-02: Integrate application status, search, and filtering into the existing dashboard tailored-resume entries.
 - [ ] 02-03: Build linked application details/edit/status flows from the tailored-resume experience.
 
 ### Phase 3: Workflow Integrations
@@ -87,6 +87,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Applications Backend Foundation | 3/3 | Complete   | 2026-03-23 |
-| 2. Dashboard Resume-Linked Experience | 0/3 | Not started | - |
+| 2. Dashboard Resume-Linked Experience | 2/3 | In progress  | 2026-03-23 |
 | 3. Workflow Integrations | 0/2 | Not started | - |
 | 4. Quality and Release Hardening | 0/2 | Not started | - |

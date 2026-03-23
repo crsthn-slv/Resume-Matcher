@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Phase 2 context captured for resume-linked application tracking; planning can start
-last_updated: "2026-03-23T11:06:16.452Z"
+stopped_at: Phase 2 plan 02-02 completed; ready for plan 02-03
+last_updated: "2026-03-23T12:00:25.798Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 02 (dashboard-resume-linked-experience) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ Plan: 2 of 3
 - Trend: Stable
 
 | Phase 02 P01 | 52 | 3 tasks | 4 files |
+| Phase 02 P02 | 55 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -58,6 +59,8 @@ Recent decisions affecting current work:
 - Phase 0: Pipeline validation stays centralized in the backend.
 - Phase 1.5: MVP tracker UI will be embedded into the existing tailored-resume dashboard flow instead of a standalone applications table.
 - [Phase 02]: Treat tailored resumes as the primary dashboard records even when application data is loaded alongside them. — Phase 2 must preserve the existing dashboard surface while making it application-aware.
+- [Phase 02]: Status filter options should prefer configured pipeline statuses, falling back to statuses present in loaded applications. — The dashboard filter should reflect the backend workflow even before every status has active records.
+- [Phase 02]: Application badges stay compact on dashboard cards so the tailored resume remains the primary visual element. — Phase 2 must keep the dashboard resume-centric instead of turning cards into dense tracker summaries.
 
 ### Pending Todos
 
@@ -70,5 +73,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-23 09:31
-Stopped at: Phase 2 context captured for resume-linked application tracking; planning can start
+Stopped at: Phase 2 plan 02-02 completed; ready for plan 02-03
 Resume file: None

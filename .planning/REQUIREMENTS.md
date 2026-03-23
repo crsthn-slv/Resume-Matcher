@@ -25,7 +25,7 @@
 ### Dashboard
 
 - [x] **DASH-01**: User can keep using the existing dashboard as the main surface, with application tracking integrated into tailored-resume entries instead of a separate applications section.
-- [ ] **DASH-02**: User can scan tailored-resume entries and understand application state through visible status and linked vacancy metadata.
+- [x] **DASH-02**: User can scan tailored-resume entries and understand application state through visible status and linked vacancy metadata.
 - [ ] **DASH-03**: User can open a tailored-resume item from the dashboard and access its linked application details, edit flow, and status actions.
 
 ### Tailoring Integration
@@ -77,7 +77,7 @@
 | APPL-05 | Phase 2 | Pending |
 | APPL-06 | Phase 2 | Pending |
 | DASH-01 | Phase 2 | Complete |
-| DASH-02 | Phase 2 | Pending |
+| DASH-02 | Phase 2 | Complete |
 | DASH-03 | Phase 2 | Pending |
 | SET-01 | Phase 3 | Pending |
 | SET-02 | Phase 3 | Pending |
