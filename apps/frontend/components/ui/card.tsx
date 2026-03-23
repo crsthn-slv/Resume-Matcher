@@ -6,6 +6,10 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   noPadding?: boolean;
 }
 
+interface CardBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'outline';
+}
+
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', noPadding = false, ...props }, ref) => {
     const baseStyles = 'rounded-none flex flex-col relative overflow-hidden';
@@ -64,6 +68,31 @@ const CardDescription = React.forwardRef<
 ));
 CardDescription.displayName = 'CardDescription';
 
+const CardBadge = React.forwardRef<HTMLSpanElement, CardBadgeProps>(
+  ({ className, variant = 'default', ...props }, ref) => {
+    const variants = {
+      default: 'bg-[#E5E5E0] text-black',
+      success: 'bg-green-700 text-white',
+      warning: 'bg-orange-500 text-white',
+      danger: 'bg-red-600 text-white',
+      outline: 'bg-transparent text-black',
+    };
+
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          'inline-flex items-center border border-black px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.18em] leading-none rounded-none shadow-[1px_1px_0px_0px_#000000]',
+          variants[variant],
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+CardBadge.displayName = 'CardBadge';
+
 const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => <div ref={ref} className={cn('flex-1', className)} {...props} />
 );
@@ -76,4 +105,4 @@ const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 );
 CardFooter.displayName = 'CardFooter';
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardBadge };

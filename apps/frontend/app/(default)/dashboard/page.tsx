@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { Card, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardBadge, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { useTranslations } from '@/lib/i18n';
 
@@ -47,6 +47,41 @@ function formatApplicationStatusLabel(status: string): string {
     .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
+}
+
+function normalizeApplicationStatus(status: string): string {
+  return status
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, ' ');
+}
+
+function getApplicationBadgeVariant(
+  status: string
+): 'default' | 'success' | 'warning' | 'danger' | 'outline' {
+  const normalized = normalizeApplicationStatus(status);
+
+  if (normalized.includes('reject') || normalized.includes('declin')) {
+    return 'danger';
+  }
+
+  if (
+    normalized.includes('offer') ||
+    normalized.includes('hired') ||
+    normalized.includes('accept')
+  ) {
+    return 'success';
+  }
+
+  if (normalized.includes('interview') || normalized.includes('screen')) {
+    return 'warning';
+  }
+
+  if (normalized.includes('appl')) {
+    return 'default';
+  }
+
+  return 'outline';
 }
 
 function uniqueStatuses(statuses: string[]): string[] {
@@ -666,9 +701,16 @@ export default function DashboardPage() {
                   >
                     <span className="font-mono font-bold">{getMonogram(title)}</span>
                   </div>
-                  <span className="font-mono text-xs text-gray-500 uppercase">
-                    {resume.processing_status}
-                  </span>
+                  <div className="flex flex-col items-end gap-2 text-right">
+                    {resume.application && (
+                      <CardBadge variant={getApplicationBadgeVariant(resume.application.status)}>
+                        {formatApplicationStatusLabel(resume.application.status)}
+                      </CardBadge>
+                    )}
+                    <span className="font-mono text-xs text-gray-500 uppercase">
+                      {resume.processing_status}
+                    </span>
+                  </div>
                 </div>
                 <CardTitle className="text-lg">
                   <span className="block font-serif text-base font-bold leading-tight mb-1 w-full line-clamp-2">
