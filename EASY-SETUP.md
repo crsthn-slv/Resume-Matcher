@@ -48,9 +48,6 @@ git clone https://github.com/crsthn-slv/Resume-Matcher.git
 cd Resume-Matcher
 ```
 
-**Para receber atualizações futuras:**
-Sempre que você (o dono do projeto) fizer uma alteração no seu Git, ela só precisa pedir para a IA dela rodar um `git pull` dentro da pasta do projeto para "puxar" as novidades automaticamente.
-
 ---
 
 ## Estágio 2: Setup do Backend e Dependências
