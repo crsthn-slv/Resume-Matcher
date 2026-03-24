@@ -16,13 +16,14 @@ The product must let the user track real job applications alongside the tailored
 - ✓ Resume builder with editable sections and PDF export — existing
 - ✓ Cover letter and outreach generation linked to tailoring flows — existing
 - ✓ Multi-language UI and generated content support — existing
+- ✓ Resume-linked application tracking inside the existing dashboard workflow — v1.0
 
 ### Active
 
-- [x] User can manage application records from the existing dashboard through tailored-resume entries.
-- [x] User can change application status through a configurable pipeline and review status history.
-- [x] User can create an application directly after tailoring with linked `resume_id` and `job_id`.
-- [x] User can manage the global application pipeline in Settings.
+- [ ] User can install Resume Matcher on Windows from a normal `.exe` installer without manual runtime setup.
+- [ ] User can launch the app from the desktop or Start menu and use it without seeing terminal windows.
+- [ ] The packaged app ships with the required frontend, backend, and runtime dependencies embedded.
+- [ ] The desktop distribution supports a clear update path for delivering new versions.
 
 ### Out of Scope
 
@@ -30,23 +31,26 @@ The product must let the user track real job applications alongside the tailored
 - Interview scheduling, reminders, contacts, and follow-up automation — not required to prove core tracking value.
 - Automatic company/role parsing from freeform job text — deferred to keep the MVP deterministic.
 - Multi-user collaboration or actor-level auditing — product remains single-user and local-first.
+- Public web hosting as the primary delivery model for this milestone — the focus is local desktop distribution for a non-technical Windows user.
+- Cross-platform packaging beyond Windows — macOS and Linux installers can be revisited after the Windows flow is reliable.
 
 ## Context
 
-Resume Matcher is already a brownfield full-stack app built with FastAPI, TinyDB, Next.js, React, and Tailwind. The current product already stores resumes, jobs, improvements, generated outputs, and configuration locally, so the new `application` model should follow existing persistence and API conventions instead of introducing a new storage pattern.
+Resume Matcher is already a brownfield full-stack app built with FastAPI, TinyDB, Next.js, React, and Tailwind. It currently runs as a local developer workflow with separate backend and frontend processes, while user data, generated outputs, and configuration are stored locally. The new milestone must preserve the local-first single-user model while replacing the manual developer startup flow with a packaged Windows desktop experience.
 
-The motivation for this milestone is practical and user-driven: the user wants to apply for jobs, map the vacancies they are pursuing, track which roles they already applied to, and ultimately improve the odds of getting hired. Success is defined by being able to use the current dashboard as the main hub, recognize which tailored resume is tied to an application, open that item, and manage the linked application details and status from there.
+The motivation for this milestone is practical and user-driven: the product needs to run on the user's spouse's Windows PC with a simple click-to-open experience, no visible terminal, no manual dependency installation, and a maintainable release/update path from the same repository. Success is defined by being able to produce a Windows installer, install the app on a clean machine, open it like a normal desktop app, and later deliver updates without reintroducing a developer-style setup burden.
 
-Existing frontend patterns should be preserved: Swiss-style UI, shared components, current dashboard layout, and full i18n coverage across all supported languages. Existing backend principles also remain in force: strong validation, explicit generic client errors, detailed server-side logging, and defensive handling of mutable defaults.
+Existing frontend patterns should be preserved: Swiss-style UI, shared components, current dashboard layout, and full i18n coverage across all supported languages. Existing backend principles also remain in force: strong validation, explicit generic client errors, detailed server-side logging, and defensive handling of mutable defaults. The packaging layer should be additive around the existing app, not a forked product.
 
 ## Constraints
 
 - **Tech stack**: Must extend the existing FastAPI + TinyDB + Next.js architecture — avoid introducing new persistence or state-management systems for this MVP.
-- **Product scope**: Tracker is an MVP inside the current product — focus on linking application tracking to the existing tailored-resume flow, not on building a separate CRM-style tracker surface.
-- **Integration**: The `application` model is separate from `job` but may link to `job_id` and `resume_id` — preserve this distinction in API and UI behavior.
+- **Distribution model**: Must package the current local app into a Windows desktop deliverable — avoid requiring Python, Node.js, uv, npm, or a terminal on the target machine.
+- **Repository strategy**: Keep one source repository for development and release packaging — do not create a parallel fork just for the distributed build.
+- **Runtime UX**: Desktop launch must feel like a normal installed app — no visible console windows and no separate manual service startup.
 - **UX consistency**: Dashboard cards, dialogs, detail views, and Settings components must follow the current Swiss-style design system and reuse existing shared UI primitives.
-- **Validation**: Application status must always come from the configured pipeline, and status removal rules must be enforced in the backend.
-- **Localization**: All user-facing strings for the tracker and pipeline management must be added to every supported locale file.
+- **Data safety**: Local user data and configuration must survive app restarts and normal upgrades.
+- **Release operations**: The milestone must define how new versions are shipped and applied on the Windows machine.
 
 ## Key Decisions
 
@@ -57,12 +61,23 @@ Existing frontend patterns should be preserved: Swiss-style UI, shared component
 | Centralize pipeline validation in backend config endpoints                                         | Status integrity must not depend on frontend behavior                                                            | 2026-03-23 |
 | Offer application creation after tailoring through the resume viewer handoff with editable prefill | Preserves a resume-centric workflow while reducing re-entry for `company`, `role`, and `job_url`                 | 2026-03-23 |
 | Make the visible status badge the primary interaction trigger on dashboard and resume viewer       | Reduces tracker friction while preserving backend status authority and the existing tracker surfaces             | 2026-03-23 |
+| Keep desktop distribution in the same repository as the main app                                  | Release packaging should reuse the existing codebase and avoid maintaining a second divergent project            | 2026-03-24 |
 
 ## Current State
 
 - `v1.0` shipped on `2026-03-23`
 - The product now supports end-to-end resume-linked application tracking inside the existing dashboard, resume viewer, Settings, and tailoring workflow.
 - All `21/21` v1 requirements are satisfied, all `5/5` phases are verified, and all `5/5` phases are Nyquist-compliant.
+
+## Current Milestone: v1.1 Windows Desktop Distribution
+
+**Goal:** transform Resume Matcher into a Windows desktop application that a non-technical user can install and run by double-clicking, without terminals or manual dependency setup.
+
+**Target features:**
+- Windows `.exe` installer for normal installation flow
+- Desktop launch experience without visible terminal windows
+- Embedded runtimes and packaged dependencies
+- Defined update strategy for shipping future improvements
 
 ## Next Milestone Goals
 
@@ -91,4 +106,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-03-23 after v1.0 milestone completion_
+_Last updated: 2026-03-24 after v1.1 milestone start_
