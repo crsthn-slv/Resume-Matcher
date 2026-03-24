@@ -19,6 +19,16 @@ function runTaskkill(args: string[]): Promise<void> {
   });
 }
 
+function killPosixTarget(pid: number, signal: NodeJS.Signals, useProcessGroup: boolean): boolean {
+  const target = useProcessGroup ? -pid : pid;
+  try {
+    process.kill(target, signal);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function killProcessTree({
   pid,
   platform = process.platform,
@@ -32,17 +42,12 @@ export async function killProcessTree({
     return;
   }
 
-  try {
-    process.kill(pid, signal);
-  } catch {
+  const signaled = killPosixTarget(pid, signal, true) || killPosixTarget(pid, signal, false);
+  if (!signaled) {
     return;
   }
 
   await delay(timeoutMs);
 
-  try {
-    process.kill(pid, 'SIGKILL');
-  } catch {
-    // Already stopped.
-  }
+  killPosixTarget(pid, 'SIGKILL', true) || killPosixTarget(pid, 'SIGKILL', false);
 }

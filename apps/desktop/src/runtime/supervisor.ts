@@ -110,6 +110,7 @@ export function createRuntimeSupervisor(options: RuntimeSupervisorOptions): Runt
     const child = spawnImpl(config.command, config.args, {
       cwd: config.cwd,
       env: config.env,
+      detached: process.platform !== 'win32',
       windowsHide: true,
       stdio: 'pipe',
     });
