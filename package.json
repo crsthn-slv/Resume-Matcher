@@ -1,0 +1,11 @@
+{
+  "name": "resume-matcher-workspace",
+  "private": true,
+  "scripts": {
+    "desktop:dev": "npm --prefix apps/desktop run dev",
+    "desktop:build": "npm --prefix apps/desktop run build",
+    "desktop:start": "npm --prefix apps/desktop run start",
+    "desktop:typecheck": "npm --prefix apps/desktop run typecheck",
+    "desktop:test": "npm --prefix apps/desktop run test"
+  }
+}
