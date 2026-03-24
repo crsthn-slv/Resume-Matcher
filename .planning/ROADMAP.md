@@ -30,7 +30,11 @@ v1.1 turns the existing local developer workflow into a Windows desktop product 
   1. User can launch Resume Matcher from an installed Windows entry point and gets a desktop application window instead of the current browser-plus-terminal workflow.
   2. User does not see terminal or console windows during normal app startup, use, or shutdown.
   3. User can close the desktop app and its managed app processes stop without manual task cleanup.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] `06-01-PLAN.md` — Create the Electron desktop workspace, lifecycle contracts, and safe main/preload shell entrypoints.
+- [ ] `06-02-PLAN.md` — Replace `docker/start.sh` behavior with a hidden runtime supervisor, log sinks, and process-tree shutdown.
+- [ ] `06-03-PLAN.md` — Add splash/main/error windows, retry and logs actions, external-browser policy, and desktop-shell runbook.
 **UI hint**: yes
 
 ### Phase 7: Bundled Runtime & Persistent Data
@@ -70,7 +74,7 @@ v1.1 turns the existing local developer workflow into a Windows desktop product 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 6. Desktop Shell & Lifecycle | 0/TBD | Not started | - |
+| 6. Desktop Shell & Lifecycle | 3/3 | Awaiting human verification | - |
 | 7. Bundled Runtime & Persistent Data | 0/TBD | Not started | - |
 | 8. Installer & Release Delivery | 0/TBD | Not started | - |
 | 9. Validation & Diagnostics Hardening | 0/TBD | Not started | - |
