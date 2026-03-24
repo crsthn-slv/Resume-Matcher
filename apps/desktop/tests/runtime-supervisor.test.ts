@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { createRuntimeSupervisor } from '../src/runtime/supervisor';
+import { killProcessTree } from '../src/runtime/process-tree';
 
 describe('runtime supervisor', () => {
   it('starts backend-before-frontend and uses the health gate', async () => {
@@ -31,6 +32,12 @@ describe('runtime supervisor', () => {
 
     expect(calls[0]).toBe('uv');
     expect(calls[1]).toBe('npm');
+    expect(spawnMock).toHaveBeenNthCalledWith(
+      1,
+      'uv',
+      expect.any(Array),
+      expect.objectContaining({ detached: process.platform !== 'win32', windowsHide: true })
+    );
     expect(probeMock).toHaveBeenCalledWith('http://127.0.0.1:8000/api/v1/health');
     expect(state.stage).toBe('ready');
   });
@@ -104,5 +111,30 @@ describe('runtime supervisor', () => {
     expect(state.stage).toBe('failed');
     expect(state.step).toBe('waiting-backend');
     expect(state.error).toContain('timed out');
+  });
+
+  it('kills the full process group on posix before falling back to the direct pid', async () => {
+    const originalKill = process.kill;
+    const calls: Array<{ pid: number; signal?: NodeJS.Signals }> = [];
+    const killMock = vi.fn((pid: number, signal?: NodeJS.Signals) => {
+      calls.push({ pid, signal });
+      if (pid < 0 && signal === 'SIGTERM') {
+        return true;
+      }
+      throw new Error('already exited');
+    });
+    // @ts-expect-error test shim
+    process.kill = killMock;
+
+    await killProcessTree({
+      pid: 4321,
+      platform: 'darwin',
+      timeoutMs: 0,
+    });
+
+    process.kill = originalKill;
+
+    expect(calls[0]).toEqual({ pid: -4321, signal: 'SIGTERM' });
+    expect(calls[1]).toEqual({ pid: -4321, signal: 'SIGKILL' });
   });
 });
