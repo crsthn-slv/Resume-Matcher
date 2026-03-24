@@ -14,6 +14,7 @@ import { getLogSet } from './runtime/logging';
 import { createRuntimeSupervisor } from './runtime/supervisor';
 import { createErrorWindow } from './windows/createErrorWindow';
 import { createMainWindow } from './windows/createMainWindow';
+import { createSplashWindow } from './windows/createSplashWindow';
 
 let splashWindow: BrowserWindow | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -22,61 +23,6 @@ let errorWindow: BrowserWindow | null = null;
 const supervisor = createRuntimeSupervisor({
   mode: app.isPackaged ? 'production' : 'development',
 });
-
-const BASE_WINDOW_OPTIONS = {
-  width: 1440,
-  height: 960,
-  minWidth: 1100,
-  minHeight: 760,
-  show: false,
-  autoHideMenuBar: true,
-  webPreferences: {
-    contextIsolation: true,
-    nodeIntegration: false,
-    sandbox: true,
-    preload: path.join(__dirname, 'preload.js'),
-  },
-};
-
-const STARTING_PLACEHOLDER_URL = `data:text/html;charset=UTF-8,${encodeURIComponent(`<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Resume Matcher</title>
-    <style>
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: #0f172a;
-        color: #e2e8f0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      }
-
-      p {
-        margin: 0;
-        font-size: 16px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-    </style>
-  </head>
-  <body>
-    <p>Starting Resume Matcher...</p>
-  </body>
-</html>`)}`;
-
-function createPlaceholderWindow(): BrowserWindow {
-  const window = new BrowserWindow(BASE_WINDOW_OPTIONS);
-  void window.loadURL(STARTING_PLACEHOLDER_URL);
-  window.once('closed', () => {
-    if (splashWindow === window) {
-      splashWindow = null;
-    }
-  });
-  return window;
-}
 
 function broadcastState(state: DesktopBootstrapState): void {
   splashWindow?.webContents.send(DESKTOP_STATE_EVENT, state);
@@ -142,7 +88,12 @@ function showFailureWindow(): void {
 }
 
 async function bootstrap(): Promise<void> {
-  splashWindow ??= createPlaceholderWindow();
+  splashWindow ??= createSplashWindow();
+  splashWindow.once('closed', () => {
+    if (splashWindow?.isDestroyed()) {
+      splashWindow = null;
+    }
+  });
   const state = await supervisor.start();
   if (state.stage === 'ready') {
     await showReadyWindow(state);
@@ -155,7 +106,7 @@ function registerIpc(): void {
   ipcMain.handle(DESKTOP_GET_STATE, () => supervisor.getState());
   ipcMain.handle(DESKTOP_RETRY, async () => {
     splashWindow = destroyWindow(splashWindow);
-    splashWindow = createPlaceholderWindow();
+    splashWindow = createSplashWindow();
     errorWindow = destroyWindow(errorWindow);
     const state = await supervisor.retry();
     if (state.stage === 'ready') {
