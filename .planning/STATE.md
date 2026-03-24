@@ -1,35 +1,38 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Milestone archived
-stopped_at: v1.0 archived
-last_updated: "2026-03-23T16:55:00.000Z"
+milestone: v1.1
+milestone_name: Windows Desktop Distribution
+status: Phase 6 ready to plan
+stopped_at: v1.1 roadmap creation
+last_updated: "2026-03-24T09:48:28Z"
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 12
-  completed_plans: 12
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-23)
+See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** The product must let the user track real job applications alongside the tailored resumes they used so the job search stays organized and actionable end to end.
-**Current focus:** v1.0 archived; define the next milestone
+**Current focus:** Phase 6 - Desktop Shell & Lifecycle
 
 ## Current Position
 
-Phase: none active
-Plan: milestone boundary
+Phase: 6 of 9 overall (1 of 4 in v1.1)
+Plan: -
+Status: Ready to plan
+Last activity: 2026-03-24 - Roadmap created for v1.1 Windows Desktop Distribution
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
-
 - Total plans completed: 0
 - Average duration: 0 min
 - Total execution time: 0.0 hours
@@ -37,17 +40,12 @@ Plan: milestone boundary
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
-| ----- | ----- | ----- | -------- |
-| -     | -     | -     | -        |
+|-------|-------|-------|----------|
+| - | - | - | - |
 
 **Recent Trend:**
-
 - Last 5 plans: none
 - Trend: Stable
-
-| Phase 02 P01 | 52 | 3 tasks | 4 files |
-| Phase 02 P02 | 55 | 3 tasks | 7 files |
-| Phase 02 P03 | 26 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -56,22 +54,9 @@ Plan: milestone boundary
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Phase 0: `application` will be a first-class model separate from `job`.
-- Phase 0: Pipeline validation stays centralized in the backend.
-- Phase 1.5: MVP tracker UI will be embedded into the existing tailored-resume dashboard flow instead of a standalone applications table.
-- [Phase 02]: Treat tailored resumes as the primary dashboard records even when application data is loaded alongside them. — Phase 2 must preserve the existing dashboard surface while making it application-aware.
-- [Phase 02]: Status filter options should prefer configured pipeline statuses, falling back to statuses present in loaded applications. — The dashboard filter should reflect the backend workflow even before every status has active records.
-- [Phase 02]: Application badges stay compact on dashboard cards so the tailored resume remains the primary visual element. — Phase 2 must keep the dashboard resume-centric instead of turning cards into dense tracker summaries.
-- [Phase 03]: Application pipeline management lives inside Settings and remains backed by the existing config endpoints. — Phase 3 extends the existing Settings surface instead of creating admin-specific navigation.
-- [Phase 03]: Post-tailoring application creation stays resume-centric by routing into the normal resume viewer and auto-opening the linked application form. — Tailoring does not fork into a parallel tracker route.
-- [Phase 04]: Tracker release hardening is driven by actual validation evidence rather than speculative polish work. — Final release quality comes from passing lint, format, frontend tests, and backend tests on the shipped workflow.
-- [Phase 05]: Status badges become the direct interaction trigger across dashboard and resume viewer. — The tracker should let the user click the visible badge, choose a status, and finish the update immediately.
-
-### Roadmap Evolution
-
-- Phase 5 added: Inline application status editing
-- Phase 5 executed: Inline application status editing
-- Milestone v1.0 archived: roadmap and requirements moved to `.planning/milestones/`
+- [v1.1 roadmap]: Keep Windows desktop distribution in the main repository and sequence the milestone around shell/lifecycle, bundled runtime/data, installer/release, and validation hardening.
+- [v1.0]: Application tracking stays embedded in the existing tailored-resume workflow instead of a separate tracker surface.
+- [v1.0]: Pipeline validation stays centralized in backend config endpoints.
 
 ### Pending Todos
 
@@ -83,6 +68,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T16:55:00.000Z
-Stopped at: v1.0 archived
-Resume file: .planning/milestones/v1.0-ROADMAP.md
+Last session: 2026-03-24T09:48:28Z
+Stopped at: v1.1 roadmap created; Phase 6 ready to plan
+Resume file: .planning/ROADMAP.md
