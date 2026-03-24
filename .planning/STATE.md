@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Windows Desktop Distribution
-status: Phase 6 human verification required
-stopped_at: Phase 6 implementation complete; awaiting desktop UAT
-last_updated: "2026-03-24T11:05:00Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-24T11:27:28.339Z"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
   completed_plans: 3
 ---
@@ -45,6 +45,8 @@ Plan: 3 of 3 complete
 - Last 5 plans: 06-01, 06-02, 06-03
 - Trend: Active
 
+| Phase 06 P01 | 1min | 2 tasks | 7 files |
+
 ## Accumulated Context
 
 ### Decisions
@@ -55,6 +57,8 @@ Recent decisions affecting current work:
 - [v1.1 roadmap]: Keep Windows desktop distribution in the main repository and sequence the milestone around shell/lifecycle, bundled runtime/data, installer/release, and validation hardening.
 - [v1.0]: Application tracking stays embedded in the existing tailored-resume workflow instead of a separate tracker surface.
 - [v1.0]: Pipeline validation stays centralized in backend config endpoints.
+- [Phase 06]: Preserve the tracked desktop supervisor structure and align main.ts to the 06-01 shell contract instead of reverting later desktop scaffolding.
+- [Phase 06]: Declare the base BrowserWindow security and sizing contract directly in main.ts so the Electron entrypoint owns the preload boundary.
 
 ### Pending Todos
 
@@ -66,6 +70,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-24T11:05:00Z
-Stopped at: Phase 6 implementation complete; awaiting human UAT
-Resume file: .planning/phases/06-desktop-shell-lifecycle/06-HUMAN-UAT.md
+Last session: 2026-03-24T11:27:28.335Z
+Stopped at: Completed 06-01-PLAN.md
+Resume file: None

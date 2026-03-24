@@ -13,7 +13,7 @@
 
 ### Desktop Runtime
 
-- [ ] **DSK-01**: User can launch Resume Matcher from the installed Windows entry point and get a desktop window for the app instead of a browser-and-terminal developer workflow.
+- [x] **DSK-01**: User can launch Resume Matcher from the installed Windows entry point and get a desktop window for the app instead of a browser-and-terminal developer workflow.
 - [ ] **DSK-02**: User does not see terminal or console windows during normal app startup, use, or shutdown.
 - [ ] **DSK-03**: User can keep using the existing product flows inside the packaged desktop app, including tailoring, application tracking, settings, and PDF export.
 - [ ] **DSK-04**: User can close the desktop app and have its managed app processes shut down cleanly without manual task cleanup.
@@ -63,7 +63,7 @@
 | INST-01 | Phase 8 | Pending |
 | INST-02 | Phase 8 | Pending |
 | INST-03 | Phase 8 | Pending |
-| DSK-01 | Phase 6 | Pending |
+| DSK-01 | Phase 6 | Complete |
 | DSK-02 | Phase 6 | Pending |
 | DSK-03 | Phase 7 | Pending |
 | DSK-04 | Phase 6 | Pending |
