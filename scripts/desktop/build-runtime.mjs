@@ -79,9 +79,18 @@ async function runCommand(command, args, options = {}) {
       cwd: projectRoot,
       stdio: 'inherit',
       env: { ...process.env, ...options.env },
+      shell: process.platform === 'win32',
     });
 
-    child.on('error', reject);
+    child.on('error', (error) => {
+      reject(
+        new Error(
+          `Failed to spawn ${resolvedCommand} ${args.join(' ')}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        ),
+      );
+    });
     child.on('exit', (code) => {
       if (code === 0) {
         resolve();
