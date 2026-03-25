@@ -22,6 +22,22 @@ The packaged runtime is built into these directories:
 - `runtime/bin`
 - `runtime/playwright`
 
+## Build the Windows installer
+
+From the repo root:
+
+- `npm run desktop:release:win`
+- `npm run desktop:release:win:dir`
+
+Installer artifacts are written to `dist/desktop-installer`.
+
+The user-facing Windows result is one installer `.exe` that installs Resume Matcher under `Program Files` and creates Desktop plus Start Menu shortcuts.
+
+## Release docs
+
+- `docs/release/windows-desktop-release.md`
+- `docs/release/windows-install-upgrade.md`
+
 ## Run tests
 
 `npm run test`
@@ -39,6 +55,8 @@ The desktop host passes these env vars to the packaged runtime:
 - `RM_DATA_DIR`
 - `RM_BACKUP_DIR`
 - `PLAYWRIGHT_BROWSERS_PATH`
+
+On Windows, app binaries live under `Program Files` and user data stays under `%LOCALAPPDATA%` so reinstalls and upgrades do not wipe local resumes, jobs, applications, config, or backups.
 
 ## Logs
 

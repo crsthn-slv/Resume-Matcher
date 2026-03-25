@@ -149,11 +149,26 @@ async function buildRuntime() {
   ]);
 
   await ensureDir(playwrightRuntimeDir);
-  await runCommand('python', ['-m', 'playwright', 'install', 'chromium'], {
-    env: {
-      PLAYWRIGHT_BROWSERS_PATH: playwrightRuntimeDir,
+  await runCommand(
+    'uv',
+    [
+      'run',
+      '--project',
+      'apps/backend',
+      '--extra',
+      'desktop',
+      'python',
+      '-m',
+      'playwright',
+      'install',
+      'chromium',
+    ],
+    {
+      env: {
+        PLAYWRIGHT_BROWSERS_PATH: playwrightRuntimeDir,
+      },
     },
-  });
+  );
 
   await fs.access(expectedLayout.frontendServer);
   await fs.access(expectedLayout.nodeExecutable);

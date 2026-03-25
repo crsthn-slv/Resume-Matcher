@@ -84,7 +84,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 6. Desktop Shell & Lifecycle | 3/3 | Awaiting Windows confirmation | - |
 | 7. Bundled Runtime & Persistent Data | 3/3 | Awaiting Windows packaged-runtime validation | - |
-| 8. Installer & Release Delivery | 3/3 | Planned, ready to execute | - |
+| 8. Installer & Release Delivery | 3/3 | Awaiting Windows installer validation | - |
 | 9. Validation & Diagnostics Hardening | 0/TBD | Not started | - |
 
 ## Archived Scope
