@@ -642,7 +642,7 @@ export default function ResumeViewerPage() {
               {t('resumeViewer.application.editAction')}
             </Button>
           ) : (
-            <Button type="button" onClick={openCreateApplicationDialog}>
+            <Button type="button" onClick={() => openCreateApplicationDialog()}>
               <BadgeCheck className="w-4 h-4" />
               {t('resumeViewer.application.createAction')}
             </Button>
@@ -808,7 +808,7 @@ export default function ResumeViewerPage() {
           <p className="mt-2 font-mono text-xs leading-5 uppercase tracking-wider text-gray-600">
             {t('resumeViewer.application.emptyBody')}
           </p>
-          <Button className="mt-4 w-full" type="button" onClick={openCreateApplicationDialog}>
+          <Button className="mt-4 w-full" type="button" onClick={() => openCreateApplicationDialog()}>
             <BadgeCheck className="w-4 h-4" />
             {t('resumeViewer.application.createAction')}
           </Button>
