@@ -58,11 +58,24 @@ async function copyFile(source, destination) {
   await fs.copyFile(source, destination);
 }
 
+function resolveCommand(command) {
+  if (process.platform !== 'win32') {
+    return command;
+  }
+
+  if (command === 'npm') {
+    return 'npm.cmd';
+  }
+
+  return command;
+}
+
 async function runCommand(command, args, options = {}) {
   const { spawn } = await import('node:child_process');
+  const resolvedCommand = resolveCommand(command);
 
   await new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
+    const child = spawn(resolvedCommand, args, {
       cwd: projectRoot,
       stdio: 'inherit',
       env: { ...process.env, ...options.env },
@@ -76,7 +89,7 @@ async function runCommand(command, args, options = {}) {
       }
       reject(
         new Error(
-          `${command} ${args.join(' ')} exited with code ${code ?? 'unknown'}`,
+          `${resolvedCommand} ${args.join(' ')} exited with code ${code ?? 'unknown'}`,
         ),
       );
     });
