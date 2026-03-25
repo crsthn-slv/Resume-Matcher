@@ -1,4 +1,18 @@
-# 🚀 Guia de Configuração Fácil: Resume Matcher (macOS Nativo)
+# 🚀 Guia de Configuração Fácil: Resume Matcher
+
+## Windows para usuário final
+
+Se o objetivo for apenas usar o app no Windows sem instalar ferramentas de desenvolvimento, use o instalador `.exe` gerado em `dist/desktop-installer`.
+
+Fluxo esperado:
+- executar o instalador `ResumeMatcher-Setup-<version>.exe`
+- abrir o app pelo atalho na Área de Trabalho ou no menu Iniciar
+- para atualizar, rodar o instalador mais novo por cima da versão atual
+
+Guia de instalação e atualização:
+- `docs/release/windows-install-upgrade.md`
+
+O restante deste documento continua sendo o fluxo de desenvolvimento, principalmente para macOS.
 
 Este guia foi criado para uma instalação rápida e sem Docker no Mac. Ele está dividido em **estágios** para que você possa copiar e enviar para sua assistente de IA realizar uma etapa de cada vez.
 

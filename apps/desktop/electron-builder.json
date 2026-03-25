@@ -1,0 +1,40 @@
+{
+  "appId": "com.resume.matcher.desktop",
+  "productName": "Resume Matcher",
+  "asar": true,
+  "directories": {
+    "output": "../../dist/desktop-installer",
+    "buildResources": "build"
+  },
+  "files": [
+    "dist/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "../../dist/desktop",
+      "to": "dist/desktop"
+    }
+  ],
+  "artifactName": "ResumeMatcher-Setup-${version}.${ext}",
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": true,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": false,
+    "createDesktopShortcut": "always",
+    "createStartMenuShortcut": true,
+    "shortcutName": "Resume Matcher",
+    "deleteAppDataOnUninstall": false
+  }
+}
