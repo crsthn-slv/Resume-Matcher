@@ -6,6 +6,9 @@
     "desktop:build": "npm --prefix apps/desktop run build",
     "desktop:start": "npm --prefix apps/desktop run start",
     "desktop:typecheck": "npm --prefix apps/desktop run typecheck",
-    "desktop:test": "npm --prefix apps/desktop run test"
+    "desktop:test": "npm --prefix apps/desktop run test",
+    "desktop:bundle-runtime": "node scripts/desktop/build-runtime.mjs",
+    "desktop:bundle-runtime:verify": "node scripts/desktop/build-runtime.mjs --verify-layout",
+    "desktop:bundle-runtime:clean": "node scripts/desktop/build-runtime.mjs --clean"
   }
 }

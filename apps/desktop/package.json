@@ -8,6 +8,7 @@
     "postbuild": "node dist/scripts/copyUiAssets.js",
     "dev": "npm run build && electron dist/main.js",
     "start": "npm run build && electron dist/main.js",
+    "bundle:runtime": "npm --prefix ../.. run desktop:bundle-runtime",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
