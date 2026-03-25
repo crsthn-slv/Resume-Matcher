@@ -3,9 +3,8 @@ from pathlib import Path
 from PyInstaller.utils.hooks import collect_data_files
 
 
-SPEC_PATH = Path(__file__).resolve()
-BACKEND_DIR = SPEC_PATH.parent
-PROJECT_ROOT = SPEC_PATH.parents[2]
+PROJECT_ROOT = Path.cwd().resolve()
+BACKEND_DIR = PROJECT_ROOT / "apps" / "backend"
 
 datas = collect_data_files("app", includes=["**/*.json", "**/*.md", "**/*.txt"])
 datas += collect_data_files("playwright", includes=["driver/package/**/*.json"])
