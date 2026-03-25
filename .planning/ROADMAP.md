@@ -62,7 +62,11 @@ Plans:
   2. User receives desktop and Start menu entry points during installation and can launch the installed app like a normal Windows program.
   3. Maintainer can generate a Windows release from the main repository with a repeatable packaging and versioning workflow instead of a separate distribution fork.
   4. Users have a documented upgrade path for newer versions, even if the first release uses installer-based replacement rather than auto-update.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] `08-01-PLAN.md` — Add the electron-builder NSIS installer contract, machine-wide install defaults, and packaging regression coverage.
+- [ ] `08-02-PLAN.md` — Add the canonical GitHub Actions Windows release workflow plus maintainer versioning and packaging documentation.
+- [ ] `08-03-PLAN.md` — Document the Windows install and manual upgrade path and align quick-start desktop docs to the installer workflow.
 
 ### Phase 9: Validation & Diagnostics Hardening
 **Goal**: The Windows release is supportable and ready for handoff because installation, upgrades, core flows, and failures have been validated.
@@ -78,9 +82,9 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 6. Desktop Shell & Lifecycle | 3/3 | Awaiting human verification | - |
-| 7. Bundled Runtime & Persistent Data | 0/TBD | Not started | - |
-| 8. Installer & Release Delivery | 0/TBD | Not started | - |
+| 6. Desktop Shell & Lifecycle | 3/3 | Awaiting Windows confirmation | - |
+| 7. Bundled Runtime & Persistent Data | 3/3 | Awaiting Windows packaged-runtime validation | - |
+| 8. Installer & Release Delivery | 3/3 | Planned, ready to execute | - |
 | 9. Validation & Diagnostics Hardening | 0/TBD | Not started | - |
 
 ## Archived Scope
