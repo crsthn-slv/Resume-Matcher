@@ -3,9 +3,9 @@ from pathlib import Path
 from PyInstaller.utils.hooks import collect_data_files
 
 
-PROJECT_ROOT = Path.cwd().resolve().parents[1]
-BACKEND_DIR = PROJECT_ROOT / "apps" / "backend"
-PLAYWRIGHT_DRIVER_DIR = PROJECT_ROOT / ".venv" / "lib"
+SPEC_PATH = Path(__file__).resolve()
+BACKEND_DIR = SPEC_PATH.parent
+PROJECT_ROOT = SPEC_PATH.parents[2]
 
 datas = collect_data_files("app", includes=["**/*.json", "**/*.md", "**/*.txt"])
 datas += collect_data_files("playwright", includes=["driver/package/**/*.json"])

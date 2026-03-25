@@ -31,8 +31,6 @@ def main() -> int:
         str(DIST_PATH),
         "--workpath",
         str(WORK_PATH),
-        "--specpath",
-        str(SPEC_PATH.parent),
     ]
     subprocess.run(command, check=True, cwd=PROJECT_ROOT)
 
