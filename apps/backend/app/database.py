@@ -23,6 +23,7 @@ class Database:
     def __init__(self, db_path: Path | None = None):
         self.db_path = db_path or settings.db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.uploads_dir = settings.data_dir / "uploads"
         self._db: TinyDB | None = None
 
     @property
@@ -358,12 +359,11 @@ class Database:
         self.applications.truncate()
 
         # Clear uploads directory
-        uploads_dir = settings.data_dir / "uploads"
-        if uploads_dir.exists():
+        if self.uploads_dir.exists():
             import shutil
 
-            shutil.rmtree(uploads_dir)
-            uploads_dir.mkdir(parents=True, exist_ok=True)
+            shutil.rmtree(self.uploads_dir)
+            self.uploads_dir.mkdir(parents=True, exist_ok=True)
 
 
 # Global database instance
