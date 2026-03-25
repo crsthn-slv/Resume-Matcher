@@ -46,7 +46,11 @@ Plans:
   2. User can use the existing core product flows inside the packaged desktop app, including tailoring, application tracking, settings, and PDF export.
   3. User's local resumes, jobs, applications, and configuration live outside the install directory so normal restarts or reinstalls do not wipe them.
   4. User can move from one released desktop build to a newer one without losing previously stored local data and configuration.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] `07-01-PLAN.md` — Build the packaged runtime bundle contract for frontend, backend, embedded Node, and bundled Chromium assets.
+- [ ] `07-02-PLAN.md` — Move backend persistence to a stable per-user data root with startup migration and backup guarantees.
+- [ ] `07-03-PLAN.md` — Rewire Electron packaged launches and PDF export to use bundled runtime artifacts plus stable user data.
 **UI hint**: yes
 
 ### Phase 8: Installer & Release Delivery
