@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 RM_DATA_DIR = "RM_DATA_DIR"
+RM_BACKUP_DIR = "RM_BACKUP_DIR"
 SCHEMA_VERSION = 1
 MANIFEST_RELATIVE_PATH = Path(".meta") / "storage-schema.json"
 
@@ -32,6 +33,9 @@ def resolve_data_dir() -> Path:
 
 def resolve_backup_dir() -> Path:
     """Resolve the root directory used for storage backups."""
+    backup_dir = os.environ.get(RM_BACKUP_DIR)
+    if backup_dir:
+        return Path(backup_dir).expanduser().resolve()
     return resolve_data_dir() / "backups"
 
 

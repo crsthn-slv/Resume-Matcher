@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { createRuntimeCommands } from '../src/runtime/command-factory';
 import { createRuntimeSupervisor } from '../src/runtime/supervisor';
 import { killProcessTree } from '../src/runtime/process-tree';
 
@@ -111,6 +112,31 @@ describe('runtime supervisor', () => {
     expect(state.stage).toBe('failed');
     expect(state.step).toBe('waiting-backend');
     expect(state.error).toContain('timed out');
+  });
+
+  it('creates packaged production commands with stable data and browser env paths', () => {
+    const commands = createRuntimeCommands('production', {
+      runtimeRoot: '/opt/resume-matcher',
+      dataDir: '/Users/demo/AppData/Local/ResumeMatcher/data',
+      backupDir: '/Users/demo/AppData/Local/ResumeMatcher/backups',
+    });
+
+    expect(commands.backend.command).toContain('rm-backend.exe');
+    expect(commands.frontend.command).toContain('node.exe');
+    expect(commands.frontend.args).toEqual([
+      '/opt/resume-matcher/runtime/frontend/server.js',
+    ]);
+    expect(commands.backend.env.RM_DATA_DIR).toBe(
+      '/Users/demo/AppData/Local/ResumeMatcher/data',
+    );
+    expect(commands.backend.env.RM_BACKUP_DIR).toBe(
+      '/Users/demo/AppData/Local/ResumeMatcher/backups',
+    );
+    expect(commands.backend.env.PLAYWRIGHT_BROWSERS_PATH).toBe(
+      '/opt/resume-matcher/runtime/playwright',
+    );
+    expect(commands.frontend.env.PORT).toBe('3000');
+    expect(commands.frontend.env.HOSTNAME).toBe('127.0.0.1');
   });
 
   it('kills the full process group on posix before falling back to the direct pid', async () => {

@@ -20,8 +20,16 @@ let splashWindow: BrowserWindow | null = null;
 let mainWindow: BrowserWindow | null = null;
 let errorWindow: BrowserWindow | null = null;
 
+const userDataRoot = app.getPath('userData');
+const desktopDataRoot = path.join(userDataRoot, 'data');
+const desktopBackupRoot = path.join(userDataRoot, 'backups');
+const packagedRuntimeRoot = app.isPackaged ? path.join(process.resourcesPath, 'dist/desktop') : undefined;
+
 const supervisor = createRuntimeSupervisor({
   mode: app.isPackaged ? 'production' : 'development',
+  runtimeRoot: packagedRuntimeRoot,
+  dataDir: desktopDataRoot,
+  backupDir: desktopBackupRoot,
 });
 
 function broadcastState(state: DesktopBootstrapState): void {
