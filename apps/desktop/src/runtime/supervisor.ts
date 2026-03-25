@@ -22,6 +22,9 @@ export interface RuntimeSupervisorOptions {
   retries?: number;
   intervalMs?: number;
   killProcessTreeImpl?: (options: KillProcessTreeOptions) => Promise<void>;
+  runtimeRoot?: string;
+  dataDir?: string;
+  backupDir?: string;
 }
 
 export interface RuntimeSupervisor {
@@ -84,7 +87,11 @@ export function createRuntimeSupervisor(options: RuntimeSupervisorOptions): Runt
   const killProcessTreeImpl = options.killProcessTreeImpl ?? killProcessTree;
   const listeners = new Set<(state: DesktopBootstrapState) => void>();
   const logs = getLogSet();
-  const commands = createRuntimeCommands(options.mode);
+  const commands = createRuntimeCommands(options.mode, {
+    runtimeRoot: options.runtimeRoot,
+    dataDir: options.dataDir,
+    backupDir: options.backupDir,
+  });
 
   let backend: ChildProcess | null = null;
   let frontend: ChildProcess | null = null;
@@ -107,6 +114,11 @@ export function createRuntimeSupervisor(options: RuntimeSupervisorOptions): Runt
 
   const startChild = (kind: 'backend' | 'frontend') => {
     const config = commands[kind];
+    if (options.mode === 'production') {
+      appendHostLog(
+        `packaged-runtime:${kind}:command=${config.command}:data=${config.env.RM_DATA_DIR ?? 'unset'}:backup=${config.env.RM_BACKUP_DIR ?? 'unset'}:browser=${config.env.PLAYWRIGHT_BROWSERS_PATH ?? 'unset'}`
+      );
+    }
     const child = spawnImpl(config.command, config.args, {
       cwd: config.cwd,
       env: config.env,

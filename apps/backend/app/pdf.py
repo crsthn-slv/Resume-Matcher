@@ -28,6 +28,7 @@ _browser: Optional[Browser] = None
 _init_lock = asyncio.Lock()  # Lock to prevent race condition during initialization
 _subprocess_lock = asyncio.Lock()
 _subprocess_supported = True
+PLAYWRIGHT_BROWSERS_ENV = "PLAYWRIGHT_BROWSERS_PATH"
 
 
 async def init_pdf_renderer() -> None:
@@ -111,7 +112,33 @@ def _find_chromium_executable() -> Optional[str]:
     return None
 
 
+def _get_packaged_browser_root() -> Optional[Path]:
+    value = os.environ.get(PLAYWRIGHT_BROWSERS_ENV, "").strip()
+    if not value:
+        return None
+    return Path(value).expanduser().resolve()
+
+
+def _build_missing_packaged_browser_message(browser_root: Path) -> str:
+    return (
+        "Bundled Chromium for the packaged runtime is missing or out of date. "
+        f"Expected Playwright browser cache under {PLAYWRIGHT_BROWSERS_ENV}={browser_root}. "
+        "Rebuild or repair the packaged desktop runtime instead of relying on a system browser."
+    )
+
+
 async def _launch_browser(playwright: Playwright) -> Browser:
+    packaged_browser_root = _get_packaged_browser_root()
+    if packaged_browser_root is not None:
+        try:
+            return await playwright.chromium.launch()
+        except PlaywrightError as e:
+            if "Executable doesn't exist" in str(e):
+                raise PDFRenderError(
+                    _build_missing_packaged_browser_message(packaged_browser_root)
+                ) from e
+            raise
+
     try:
         return await playwright.chromium.launch()
     except PlaywrightError as e:
@@ -209,6 +236,11 @@ async def _render_resume_pdf_in_thread(
 def _raise_playwright_error(error: PlaywrightError, url: str) -> NoReturn:
     error_msg = str(error)
     if "Executable doesn't exist" in error_msg:
+        packaged_browser_root = _get_packaged_browser_root()
+        if packaged_browser_root is not None:
+            raise PDFRenderError(
+                _build_missing_packaged_browser_message(packaged_browser_root)
+            ) from error
         exe = sys.executable.replace("\\", "/")
         command = f"{exe} -m playwright install chromium"
         raise PDFRenderError(
