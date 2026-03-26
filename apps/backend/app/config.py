@@ -7,14 +7,10 @@ from typing import Any, Literal
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from app.storage_paths import resolve_backup_dir, resolve_data_dir
 
-
+# Path to config file for API key persistence
+CONFIG_FILE_PATH = Path(__file__).parent.parent / "data" / "config.json"
 ALLOWED_LOG_LEVELS = ("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG")
-
-
-def _get_config_file_path() -> Path:
-    return resolve_data_dir() / "config.json"
 
 
 def load_config_file() -> dict[str, Any]:
@@ -23,10 +19,9 @@ def load_config_file() -> dict[str, Any]:
     Returns:
         Dictionary with configuration values, empty dict if file doesn't exist.
     """
-    config_file_path = _get_config_file_path()
-    if config_file_path.exists():
+    if CONFIG_FILE_PATH.exists():
         try:
-            return json.loads(config_file_path.read_text())
+            return json.loads(CONFIG_FILE_PATH.read_text())
         except (json.JSONDecodeError, OSError):
             return {}
     return {}
@@ -38,9 +33,9 @@ def save_config_file(config: dict[str, Any]) -> None:
     Args:
         config: Dictionary with configuration values to save.
     """
-    config_file_path = _get_config_file_path()
-    config_file_path.parent.mkdir(parents=True, exist_ok=True)
-    config_file_path.write_text(json.dumps(config, indent=2))
+    # Ensure data directory exists
+    CONFIG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CONFIG_FILE_PATH.write_text(json.dumps(config, indent=2))
 
 
 def get_api_keys_from_config() -> dict[str, str]:
@@ -182,10 +177,7 @@ class Settings(BaseSettings):
         return origins
 
     # Paths
-    @property
-    def data_dir(self) -> Path:
-        """Stable directory for local application data."""
-        return resolve_data_dir()
+    data_dir: Path = Path(__file__).parent.parent / "data"
 
     @property
     def db_path(self) -> Path:
@@ -196,11 +188,6 @@ class Settings(BaseSettings):
     def config_path(self) -> Path:
         """Path to config storage file."""
         return self.data_dir / "config.json"
-
-    @property
-    def backup_dir(self) -> Path:
-        """Path to migration backup storage."""
-        return resolve_backup_dir()
 
     def get_effective_api_key(self) -> str:
         """Get the effective API key with config file fallback.
