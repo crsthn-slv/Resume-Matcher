@@ -8,7 +8,9 @@ BACKEND_DIR = PROJECT_ROOT / "apps" / "backend"
 
 datas = collect_data_files("app", includes=["**/*.json", "**/*.md", "**/*.txt"])
 datas += collect_data_files("playwright", includes=["driver/package/**/*.json"])
+datas += collect_data_files("litellm", includes=["**/*.json", "**/*.txt"])
 hiddenimports = collect_submodules("app.routers")
+hiddenimports += collect_submodules("litellm")
 
 a = Analysis(
     ["app/main.py"],
