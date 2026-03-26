@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 
 PROJECT_ROOT = Path.cwd().resolve()
@@ -8,13 +8,14 @@ BACKEND_DIR = PROJECT_ROOT / "apps" / "backend"
 
 datas = collect_data_files("app", includes=["**/*.json", "**/*.md", "**/*.txt"])
 datas += collect_data_files("playwright", includes=["driver/package/**/*.json"])
+hiddenimports = collect_submodules("app.routers")
 
 a = Analysis(
     ["app/main.py"],
     pathex=[str(BACKEND_DIR)],
     binaries=[],
     datas=datas,
-    hiddenimports=[],
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
