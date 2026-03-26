@@ -1,53 +1,53 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Windows Desktop Distribution
-status: Phase 08 executed; Windows installer validation pending
-stopped_at: Completed implementation for 08-installer-release-delivery
-last_updated: "2026-03-25T12:45:00.000Z"
+milestone: v1.0
+milestone_name: milestone
+status: Milestone archived
+stopped_at: v1.0 archived
+last_updated: "2026-03-23T16:55:00.000Z"
 progress:
-  total_phases: 4
-  completed_phases: 1
-  total_plans: 9
-  completed_plans: 9
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 12
+  completed_plans: 12
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-24)
+See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** The product must let the user track real job applications alongside the tailored resumes they used so the job search stays organized and actionable end to end.
-**Current focus:** Phase 08 — installer-release-delivery
+**Current focus:** v1.0 archived; define the next milestone
 
 ## Current Position
 
-Phase: 08 (installer-release-delivery) — IMPLEMENTED, HUMAN VERIFICATION PENDING
-Plan: 3 of 3 executed
+Phase: none active
+Plan: milestone boundary
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 9
+- Total plans completed: 0
 - Average duration: 0 min
 - Total execution time: 0.0 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 06 | 3 | 0 min | 0 min |
-| 07 | 3 | 0 min | 0 min |
-| 08 | 3 | 0 min | 0 min |
+| ----- | ----- | ----- | -------- |
+| -     | -     | -     | -        |
 
 **Recent Trend:**
 
-- Last 5 plans: 07-02, 07-03, 08-01, 08-02, 08-03
-- Trend: Installer implementation complete, awaiting Windows validation
+- Last 5 plans: none
+- Trend: Stable
 
-| Phase 08 Execution | - | 3 plans | installer/release delivery implemented |
+| Phase 02 P01 | 52 | 3 tasks | 4 files |
+| Phase 02 P02 | 55 | 3 tasks | 7 files |
+| Phase 02 P03 | 26 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -56,24 +56,33 @@ Plan: 3 of 3 executed
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [v1.1 roadmap]: Keep Windows desktop distribution in the main repository and sequence the milestone around shell/lifecycle, bundled runtime/data, installer/release, and validation hardening.
-- [v1.0]: Application tracking stays embedded in the existing tailored-resume workflow instead of a separate tracker surface.
-- [v1.0]: Pipeline validation stays centralized in backend config endpoints.
-- [Phase 06]: Preserve the tracked desktop supervisor structure and align main.ts to the 06-01 shell contract instead of reverting later desktop scaffolding.
-- [Phase 06]: Declare the base BrowserWindow security and sizing contract directly in main.ts so the Electron entrypoint owns the preload boundary.
+- Phase 0: `application` will be a first-class model separate from `job`.
+- Phase 0: Pipeline validation stays centralized in the backend.
+- Phase 1.5: MVP tracker UI will be embedded into the existing tailored-resume dashboard flow instead of a standalone applications table.
+- [Phase 02]: Treat tailored resumes as the primary dashboard records even when application data is loaded alongside them. — Phase 2 must preserve the existing dashboard surface while making it application-aware.
+- [Phase 02]: Status filter options should prefer configured pipeline statuses, falling back to statuses present in loaded applications. — The dashboard filter should reflect the backend workflow even before every status has active records.
+- [Phase 02]: Application badges stay compact on dashboard cards so the tailored resume remains the primary visual element. — Phase 2 must keep the dashboard resume-centric instead of turning cards into dense tracker summaries.
+- [Phase 03]: Application pipeline management lives inside Settings and remains backed by the existing config endpoints. — Phase 3 extends the existing Settings surface instead of creating admin-specific navigation.
+- [Phase 03]: Post-tailoring application creation stays resume-centric by routing into the normal resume viewer and auto-opening the linked application form. — Tailoring does not fork into a parallel tracker route.
+- [Phase 04]: Tracker release hardening is driven by actual validation evidence rather than speculative polish work. — Final release quality comes from passing lint, format, frontend tests, and backend tests on the shipped workflow.
+- [Phase 05]: Status badges become the direct interaction trigger across dashboard and resume viewer. — The tracker should let the user click the visible badge, choose a status, and finish the update immediately.
+
+### Roadmap Evolution
+
+- Phase 5 added: Inline application status editing
+- Phase 5 executed: Inline application status editing
+- Milestone v1.0 archived: roadmap and requirements moved to `.planning/milestones/`
 
 ### Pending Todos
 
-- Run packaged-runtime validation on Windows and complete `07-HUMAN-UAT.md`.
-- Run Windows installer validation and complete `08-HUMAN-UAT.md`.
-- Start Phase 09 planning after Windows installer checks are scheduled.
+None yet.
 
 ### Blockers/Concerns
 
-- Phases 6, 7, and 8 still need Windows-specific confirmation before final handoff.
+None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T12:45:00.000Z
-Stopped at: Completed implementation for 08-installer-release-delivery
-Resume file: None
+Last session: 2026-03-23T16:55:00.000Z
+Stopped at: v1.0 archived
+Resume file: .planning/milestones/v1.0-ROADMAP.md

@@ -26,7 +26,6 @@ from app.routers import (
     jobs_router,
     resumes_router,
 )
-from app.storage_paths import prepare_storage
 
 
 def _configure_application_logging() -> None:
@@ -42,8 +41,6 @@ _configure_application_logging()
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
-    storage_root = prepare_storage()
-    logger.info("Using backend storage root: %s", storage_root)
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     # PDF renderer uses lazy initialization - will initialize on first use
     # await init_pdf_renderer()
